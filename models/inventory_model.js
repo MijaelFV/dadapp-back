@@ -4,16 +4,16 @@ const InventorySchema = Schema({
     item: {
         type: Schema.Types.ObjectId,
         ref: 'Item',
-        required: [true, 'El objeto es obligatorio'],
-    },
-    location: {
-        type: String,
-        required: [true, 'La ubicacion es obligatoria'],
+        required: [true, 'El item es obligatorio'],
     },
     space: {
         type: Schema.Types.ObjectId,
         ref: 'Space',
         required: [true, 'El espacio es obligatorio'],
+    },
+    location: {
+        type: String,
+        required: [true, 'La ubicacion es obligatoria'],
     }
 });
 

@@ -21,6 +21,7 @@ const InventoryLogSchema = Schema({
     space: {
         type: Schema.Types.ObjectId,
         ref: 'Space',
+        required: [true, 'El espacio es obligatorio'],
     }
 });
 

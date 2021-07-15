@@ -19,7 +19,7 @@ router.put('/:id',[
 
 router.post('/',[
     validateJWT,
-    check('object', 'El nombre es obligatorio').not().isEmpty(),
+    check('item', 'El item es obligatorio').not().isEmpty(),
     check('space', 'Se necesita el numero de filas obligatoriamente').not().isEmpty(),
     check('location', 'Se necesita el numero de columnas obligatoriamente').not().isEmpty(),
     validateFields
