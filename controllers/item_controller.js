@@ -1,6 +1,6 @@
-const Space = require('../models/space_model');
+const Item = require('../models/item_model');
 
-const objectGet = async(req, res) => {
+const itemGet = async(req, res) => {
     const uid = req.user._id
     const resp = await Space.find({user: uid});
 
@@ -9,7 +9,7 @@ const objectGet = async(req, res) => {
     })
 }
 
-const objectPut = async(req, res) => {
+const itemPut = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
     const { user, _id, ...rest } = req.body;
@@ -28,33 +28,18 @@ const objectPut = async(req, res) => {
     })
 }
 
-const objectPost = async(req, res) => {
-    const { name, rows, columns } = req.body;
-    const uid = req.user._id;
+const itemPost = async(req, res) => {
+    const { name, description, category } = req.body;
 
-    const spaceDB = await Space.findOne({name, user: uid});
-    if (spaceDB) {
-        return res.status(400).json({
-            msg: `El espacio ${ spaceDB.name }, ya existe`
-        })
-    }
+    const newItem = new Item({name, description, category});
+    await newItem.save();
 
-    const data = {
-        name,
-        rows,
-        columns,
-        user: uid
-    }
-
-    const newSpace = new Space(data);
-
-    // GuardarDB
-    await newSpace.save();
-
-    res.status(201).json(newSpace);
+    res.status(201).json({
+        newItem
+    });
 }
 
-const objectDelete = async(req, res) => {
+const itemDelete = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
 
@@ -74,8 +59,8 @@ const objectDelete = async(req, res) => {
 }
 
 module.exports = {
-    objectGet,
-    objectPut,
-    objectPost,
-    objectDelete
+    itemGet,
+    itemPut,
+    itemPost,
+    itemDelete
 }

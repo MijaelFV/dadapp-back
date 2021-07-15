@@ -13,6 +13,7 @@ router.get('/',[
 
 router.put('/:id',[
     validateJWT,
+    check('id', 'No es un ID de espacio valido').isMongoId(),
     validateFields
 ], spacePut);
 

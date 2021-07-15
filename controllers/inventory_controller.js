@@ -12,18 +12,18 @@ const inventoryGet = async(req, res) => {
 const inventoryPut = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
-    const { location, space, object } = req.body;
+    const { location, space, item } = req.body;
 
-    const inventoryDB = await Inventory.findOne({object})
+    const inventoryDB = await Inventory.findOne({item})
     if (!inventoryDB) {
         return res.status(400).json({
-            msg: `El objeto no se encuentra en el inventario`
+            msg: `El item no se encuentra en el inventario`
         })
     }
 
     await Inventory.findByIdAndUpdate(id, {location, space})
 
-    const newInventoryLog = new InventoryLog({location, object, space, user: uid, type: 'MODIFY'})
+    const newInventoryLog = new InventoryLog({location, item, space, user: uid, type: 'MODIFY'})
     await newInventoryLog.save();
 
     res.status(200).json({
@@ -33,18 +33,18 @@ const inventoryPut = async(req, res) => {
 
 const inventoryPost = async(req, res) => {
     const uid = req.user._id;
-    const { location, object, space } = req.body;
+    const { location, item, space } = req.body;
 
-    const inventoryDB = await Inventory.findOne({object});
+    const inventoryDB = await Inventory.findOne({item});
     if (inventoryDB) {
         return res.status(400).json({
-            msg: `El objeto ya se encuentra en el inventario`
+            msg: `El item ya se encuentra en el inventario`
         })
     }
 
-    const newInventory = new Inventory({location, object, space});
+    const newInventory = new Inventory({location, item, space});
     await newInventory.save();
-    const newInventoryLog = new InventoryLog({location, object, space, user: uid, type: 'ADD'})
+    const newInventoryLog = new InventoryLog({location, item, space, user: uid, type: 'ADD'})
     await newInventoryLog.save();
 
 
@@ -57,16 +57,16 @@ const inventoryDelete = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
 
-    const inventoryDB = await Inventory.findOne({object})
+    const inventoryDB = await Inventory.findById(id)
     if (!inventoryDB) {
         return res.status(400).json({
-            msg: `El objeto no se encuentra en el inventario`
+            msg: `El item no se encuentra en el inventario`
         })
     }
 
     await Inventory.findByIdAndDelete(id)
 
-    const newInventoryLog = new InventoryLog({object, user: uid, type: 'REMOVE'})
+    const newInventoryLog = new InventoryLog({item, user: uid, type: 'REMOVE'})
     await newInventoryLog.save();
 
     res.status(200).json({

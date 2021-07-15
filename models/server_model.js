@@ -16,7 +16,7 @@ class Server {
             inventories: '/api/inventories',
             spaces: '/api/spaces',
             categories: '/api/categories',
-            objects: '/api/objects',
+            items: '/api/items',
         }
 
         // Conectar a base de datos
@@ -55,7 +55,7 @@ class Server {
         this.app.use(this.paths.inventories, require('../routes/inventory_route'));
         this.app.use(this.paths.spaces, require('../routes/space_route'));
         this.app.use(this.paths.categories, require('../routes/category_route'));
-        this.app.use(this.paths.objects, require('../routes/object_route'));
+        this.app.use(this.paths.items, require('../routes/item_route'));
     }
 
     listen() {

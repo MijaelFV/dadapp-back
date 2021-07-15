@@ -13,7 +13,7 @@ router.get('/',[
 
 router.put('/:id',[
     validateJWT,
-    check('id', 'No es un ID de espacio valido').isMongoId(),
+    check('id', 'No es un ID de categoria valido').isMongoId(),
     validateFields
 ], categoryPut);
 
@@ -25,7 +25,7 @@ router.post('/',[
 
 router.delete('/:id',[
     validateJWT,
-    check('id', 'No es un ID de espacio valido').isMongoId(),
+    check('id', 'No es un ID de categoria valido').isMongoId(),
     validateFields
 ], categoryDelete);
 

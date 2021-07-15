@@ -10,10 +10,10 @@ const InventoryLogSchema = Schema({
         type: String,
         required: [true, 'El tipo de movimiento es obligatorio'],
     },
-    object: {
+    item: {
         type: Schema.Types.ObjectId,
-        ref: 'Object',
-        required: [true, 'El objeto es obligatorio'],
+        ref: 'Item',
+        required: [true, 'El item es obligatorio'],
     },
     location: {
         type: String,

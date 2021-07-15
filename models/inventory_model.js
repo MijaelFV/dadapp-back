@@ -1,9 +1,9 @@
 const { Schema, model } = require('mongoose');
 
 const InventorySchema = Schema({
-    object: {
+    item: {
         type: Schema.Types.ObjectId,
-        ref: 'Object',
+        ref: 'Item',
         required: [true, 'El objeto es obligatorio'],
     },
     location: {

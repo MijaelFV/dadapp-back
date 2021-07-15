@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { objectPut, objectPost, objectDelete, objectGet } = require('../controllers/object_controller');
+const { itemPut, itemPost, itemDelete, itemGet } = require('../controllers/item_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -9,26 +9,25 @@ const router = Router();
 router.get('/',[
     validateJWT,
     validateFields
-], objectGet);
+], itemGet);
 
 router.put('/:id',[
     validateJWT,
-    check('id', 'No es un ID de espacio valido').isMongoId(),
+    check('id', 'No es un ID de objeto valido').isMongoId(),
     validateFields
-], objectPut);
+], itemPut);
 
 router.post('/',[
     validateJWT,
     check('name', 'El nombre es obligatorio').not().isEmpty(),
-    check('rows', 'Se necesita el numero de filas obligatoriamente').not().isEmpty(),
-    check('columns', 'Se necesita el numero de columnas obligatoriamente').not().isEmpty(),
+    check('category', 'Se necesita el numero de filas obligatoriamente').not().isEmpty(),
     validateFields
-], objectPost);
+], itemPost);
 
 router.delete('/:id',[
     validateJWT,
-    check('id', 'No es un ID de espacio valido').isMongoId(),
+    check('id', 'No es un ID de objeto valido').isMongoId(),
     validateFields
-], objectDelete);
+], itemDelete);
 
 module.exports = router;
