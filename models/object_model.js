@@ -13,11 +13,6 @@ const ObjectSchema = Schema({
         ref: 'Category',
         required: [true, 'Darle una categoria es obligatorio'],
     },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    }
 });
 
 

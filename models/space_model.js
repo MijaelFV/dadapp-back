@@ -13,9 +13,9 @@ const SpaceSchema = Schema({
         type: Number,
         required: [true, 'Las columnas son obligatorias'],
     },
-    user: {
+    area: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Area',
         required: true,
     }
 });

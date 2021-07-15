@@ -13,6 +13,7 @@ class Server {
             users: '/api/users',
             auth: '/api/auth',
             areas: '/api/areas',
+            inventories: '/api/inventories',
             spaces: '/api/spaces',
             categories: '/api/categories',
             objects: '/api/objects',
@@ -48,12 +49,13 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.paths.users, require('../routes/users_route'));
+        this.app.use(this.paths.users, require('../routes/user_route'));
         this.app.use(this.paths.auth, require('../routes/auth_route'));
-        this.app.use(this.paths.areas, require('../routes/areas_route'));
-        this.app.use(this.paths.spaces, require('../routes/spaces_route'));
-        this.app.use(this.paths.categories, require('../routes/categories_route'));
-        this.app.use(this.paths.objects, require('../routes/objects_route'));
+        this.app.use(this.paths.areas, require('../routes/area_route'));
+        this.app.use(this.paths.inventories, require('../routes/inventory_route'));
+        this.app.use(this.paths.spaces, require('../routes/space_route'));
+        this.app.use(this.paths.categories, require('../routes/category_route'));
+        this.app.use(this.paths.objects, require('../routes/object_route'));
     }
 
     listen() {

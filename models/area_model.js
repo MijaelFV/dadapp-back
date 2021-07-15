@@ -5,34 +5,34 @@ const AreaSchema = Schema({
         type: String,
         required: [true, 'El nombre es obligatorio']
     },
-    admin: {
+    admin: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
-    },
-    members: {
+    }],
+    members: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
-    },
-    spaces: {
+    }],
+    spaces: [{
         type: Schema.Types.ObjectId,
         ref: 'Space',
-    },
-    objects: {
+    }],
+    objects: [{
         type: Schema.Types.ObjectId,
         ref: 'Object',
-    },
-    categories: {
+    }],
+    categories: [{
         type: Schema.Types.ObjectId,
         ref: 'Category',
-    }
+    }]
 });
 
 
 AreaSchema.methods.toJSON = function() {
     const {__v, _id, ...area} = this.toObject();
     area.uid = _id;
-    return arae;
+    return area;
 }
 
 module.exports = model('Area', AreaSchema);

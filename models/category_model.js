@@ -6,11 +6,6 @@ const CategorySchema = Schema({
         required: [true, 'El nombre es obligatorio'],
         unique: true,
     },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    }
 });
 
 
