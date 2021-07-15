@@ -12,7 +12,7 @@ const inventoryGet = async(req, res) => {
 const inventoryPut = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
-    const { location, space, item } = req.body;
+    const data = req.body;
 
     const inventoryDB = await Inventory.findOne({item})
     if (!inventoryDB) {
@@ -21,9 +21,9 @@ const inventoryPut = async(req, res) => {
         })
     }
 
-    await Inventory.findByIdAndUpdate(id, {location, space})
+    await Inventory.findByIdAndUpdate(id, data)
 
-    const newInventoryLog = new InventoryLog({location, item, space, user: uid, type: 'MODIFY'})
+    const newInventoryLog = new InventoryLog({...data, user: uid, type: 'MODIFY'})
     await newInventoryLog.save();
 
     res.status(200).json({
