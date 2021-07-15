@@ -1,5 +1,4 @@
 const User = require('../models/user_model');
-const Area = require('../models/area_model');
 const bcryptjs = require('bcryptjs');
 
 const userGet = async(req, res) => {
