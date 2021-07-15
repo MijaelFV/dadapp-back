@@ -5,27 +5,6 @@ const AreaSchema = Schema({
         type: String,
         required: [true, 'El nombre es obligatorio']
     },
-    admin: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    }],
-    members: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-    }],
-    spaces: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Space',
-    }],
-    objects: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Object',
-    }],
-    categories: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Category',
-    }]
 });
 
 

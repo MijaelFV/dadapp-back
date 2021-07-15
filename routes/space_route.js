@@ -22,6 +22,7 @@ router.post('/',[
     check('name', 'El nombre es obligatorio').not().isEmpty(),
     check('rows', 'Se necesita el numero de filas obligatoriamente').not().isEmpty(),
     check('columns', 'Se necesita el numero de columnas obligatoriamente').not().isEmpty(),
+    check('area', 'Se necesita el numero de columnas obligatoriamente').not().isEmpty(),
     validateFields
 ], spacePost);
 
