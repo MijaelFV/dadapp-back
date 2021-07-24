@@ -11,9 +11,13 @@ const InventorySchema = Schema({
         ref: 'Space',
         required: [true, 'El espacio es obligatorio'],
     },
-    location: {
-        type: String,
-        required: [true, 'La ubicacion es obligatoria'],
+    column: {
+        type: Number,
+        required: [true, 'La columna es obligatoria'],
+    },
+    row: {
+        type: Number,
+        required: [true, 'La fila es obligatoria'],
     }
 });
 

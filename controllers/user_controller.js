@@ -1,5 +1,6 @@
 const User = require('../models/user_model');
 const bcryptjs = require('bcryptjs');
+const { generateJWT } = require('../helpers/generate-jwt');
 
 const userGet = async(req, res) => {
     const resp = await User.find();
@@ -27,7 +28,16 @@ const userPut = async(req, res) => {
 }
 
 const userPost = async(req, res) => {
-    const {name, email, password, areaName} = req.body;
+    const {name, email: upperEmail, password} = req.body;
+    const email = upperEmail.toLowerCase();
+
+    const userDB = await User.findOne({email})
+    if (userDB) {
+        return res.status(400).json({
+            msg: 'Ya existe un usuario con ese correo'
+        })
+    }
+
     const newUser = new User({name, email, password})
 
     // Encriptar la password
@@ -37,8 +47,17 @@ const userPost = async(req, res) => {
     // Guardar en DB
     await newUser.save();
 
+    // Generar nuestro JWT 
+    const token = await generateJWT(newUser.uid, newUser.name);
+
+    const createdUser = {
+        uid: newUser._id,
+        name,
+        email,
+        token
+    }
     res.json({
-        newUser
+        createdUser
     })
 }
 
@@ -52,9 +71,25 @@ const userDelete = async(req, res) => {
     })
 }
 
+const userRevalidate = async(req, res) => {
+    const {_id: uid, name} = req.user;
+
+    const token = await generateJWT(uid, name);
+
+    const checkedUser = {
+        token,
+        uid,
+        name
+    }
+    res.status(200).json({
+        checkedUser
+    });
+} 
+
 module.exports = {
     userGet,
     userPut,
     userPost,
-    userDelete
+    userDelete,
+    userRevalidate
 }

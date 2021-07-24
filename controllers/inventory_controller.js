@@ -9,6 +9,15 @@ const inventoryGet = async(req, res) => {
     })
 }
 
+const inventoryGetBySpace = async(req, res) => {
+    const id = req.params.id;
+    const inventory = await Inventory.find({space: id});
+
+    res.status(200).json({
+        inventory        
+    })
+}
+
 const inventoryPut = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
@@ -34,7 +43,7 @@ const inventoryPut = async(req, res) => {
 
 const inventoryPost = async(req, res) => {
     const uid = req.user._id;
-    const { location, item, space } = req.body;
+    const { column, row, item, space } = req.body;
 
     const inventoryDB = await Inventory.findOne({item});
     if (inventoryDB) {
@@ -43,9 +52,9 @@ const inventoryPost = async(req, res) => {
         })
     }
 
-    const newInventory = new Inventory({location, item, space});
+    const newInventory = new Inventory({column, row, item, space});
     await newInventory.save();
-    const newInventoryLog = new InventoryLog({location, item, space, user: uid, type: 'ADD'})
+    const newInventoryLog = new InventoryLog({column, row, item, space, user: uid, type: 'ADD'})
     await newInventoryLog.save();
 
 
@@ -78,6 +87,7 @@ const inventoryDelete = async(req, res) => {
 
 module.exports = {
     inventoryGet,
+    inventoryGetBySpace,
     inventoryPut,
     inventoryPost,
     inventoryDelete
