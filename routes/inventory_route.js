@@ -1,10 +1,15 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { inventoryPut, inventoryPost, inventoryDelete, inventoryGet, inventoryGetBySpace } = require('../controllers/inventory_controller');
+const { inventoryLogsGet, inventoryPut, inventoryPost, inventoryDelete, inventoryGet, inventoryGetBySpace } = require('../controllers/inventory_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
 const router = Router();
+
+router.get('/logs',[
+    validateJWT,
+    validateFields
+], inventoryLogsGet);
 
 router.get('/',[
     validateJWT,

@@ -8,6 +8,15 @@ const categoryGet = async(req, res) => {
     })
 }
 
+const categoryGetByArea = async(req, res) => {
+    const id = req.params.id;
+    const resp = await Category.find({area: id});
+
+    res.status(200).json({
+        resp        
+    })
+}
+
 const categoryPut = async(req, res) => {
     const id = req.params.id;
     const { name } = req.body;
@@ -57,6 +66,7 @@ const categoryDelete = async(req, res) => {
 
 module.exports = {
     categoryGet,
+    categoryGetByArea,
     categoryPut,
     categoryPost,
     categoryDelete

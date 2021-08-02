@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { categoryPut, categoryPost, categoryDelete, categoryGet } = require('../controllers/category_controller');
+const { categoryPut, categoryPost, categoryDelete, categoryGet, categoryGetByArea } = require('../controllers/category_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -10,6 +10,12 @@ router.get('/',[
     validateJWT,
     validateFields
 ], categoryGet);
+
+router.get('/:id',[
+    validateJWT,
+    check('id', 'No es un ID de area valido').isMongoId(),
+    validateFields
+], categoryGetByArea);
 
 router.put('/:id',[
     validateJWT,

@@ -1,7 +1,7 @@
 const Space = require('../models/space_model');
 
 const spaceGet = async(req, res) => {
-    const resp = await Space.find();
+    const resp = await Space.find()
 
     res.status(200).json({
         resp        

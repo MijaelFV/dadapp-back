@@ -17,16 +17,18 @@ const InventoryLogSchema = Schema({
     },
     column: {
         type: Number,
-        required: [true, 'La columna es obligatoria'],
     },
     row: {
         type: Number,
-        required: [true, 'La fila es obligatoria'],
     },
     space: {
         type: Schema.Types.ObjectId,
         ref: 'Space',
         required: [true, 'El espacio es obligatorio'],
+    },
+    time: {
+        type: Date,
+        default: Date.now
     }
 });
 

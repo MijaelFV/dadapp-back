@@ -1,8 +1,34 @@
+const Item = require('../models/item_model');
 const Inventory = require('../models/inventory_model');
 const InventoryLog = require('../models/inventoryLog_model');
 
+const inventoryLogsGet = async(req, res) => {
+    const skip = req.query.skip ? Number(req.query.skip) : 0
+
+    const resp = await InventoryLog.find()
+        .sort({'time': -1})
+        .skip(skip)
+        .limit(7)
+        .populate({
+            path: 'item',
+            select: '-description -__v -category'
+        })
+        .populate({
+            path: 'space',
+            select: '-area -__v -rows -columns'
+        })
+        .populate({
+            path: 'user',
+            select: '-__v -password -email -active',
+        })
+
+    res.status(200).json({
+        resp        
+    })
+}
+
 const inventoryGet = async(req, res) => {
-    const resp = await Inventory.find();
+    const resp = await Inventory.find()
 
     res.status(200).json({
         resp        
@@ -11,7 +37,15 @@ const inventoryGet = async(req, res) => {
 
 const inventoryGetBySpace = async(req, res) => {
     const id = req.params.id;
-    const inventory = await Inventory.find({space: id});
+    const inventory = await Inventory.find({space: id})
+        .populate({
+            path: 'item',
+            select: '-__v',
+            populate: {
+                path: 'category',
+                select: '-_id -__v -area'
+            }
+        })
 
     res.status(200).json({
         inventory        
@@ -52,6 +86,13 @@ const inventoryPost = async(req, res) => {
         })
     }
 
+    const itemDB = await Item.findById(item);
+    if (!itemDB) {
+        return res.status(400).json({
+            msg: `El item no existe`
+        })
+    }
+
     const newInventory = new Inventory({column, row, item, space});
     await newInventory.save();
     const newInventoryLog = new InventoryLog({column, row, item, space, user: uid, type: 'ADD'})
@@ -77,7 +118,7 @@ const inventoryDelete = async(req, res) => {
     await Inventory.findByIdAndDelete(id)
 
     const { item, space } = inventoryDB;
-    const newInventoryLog = new InventoryLog({item, space, user: uid, type: 'REMOVE'})
+    const newInventoryLog = new InventoryLog({item, row: null, column: null, space, user: uid, type: 'REMOVE'})
     await newInventoryLog.save();
 
     res.status(200).json({
@@ -86,6 +127,7 @@ const inventoryDelete = async(req, res) => {
 }
 
 module.exports = {
+    inventoryLogsGet,
     inventoryGet,
     inventoryGetBySpace,
     inventoryPut,
