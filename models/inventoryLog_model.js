@@ -26,6 +26,11 @@ const InventoryLogSchema = Schema({
         ref: 'Space',
         required: [true, 'El espacio es obligatorio'],
     },
+    area: {
+        type: Schema.Types.ObjectId,
+        ref: 'Area',
+        required: [true, 'El area es obligatoria'],
+    },
     time: {
         type: Date,
         default: Date.now

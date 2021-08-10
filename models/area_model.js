@@ -5,6 +5,14 @@ const AreaSchema = Schema({
         type: String,
         required: [true, 'El nombre es obligatorio']
     },
+    admins: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    users: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    }]
 });
 
 

@@ -1,5 +1,15 @@
 const Space = require('../models/space_model');
 
+const spaceGetByArea = async(req, res) => {
+    const id = req.params.id;
+
+    const resp = await Space.find({area: id})
+
+    res.status(200).json({
+        resp        
+    })
+}
+
 const spaceGet = async(req, res) => {
     const resp = await Space.find()
 
@@ -55,6 +65,7 @@ const spaceDelete = async(req, res) => {
 }
 
 module.exports = {
+    spaceGetByArea,
     spaceGet,
     spacePut,
     spacePost,

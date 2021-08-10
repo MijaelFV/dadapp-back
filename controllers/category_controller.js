@@ -8,9 +8,9 @@ const categoryGet = async(req, res) => {
     })
 }
 
-const categoryGetByArea = async(req, res) => {
+const categoryGetBySpace = async(req, res) => {
     const id = req.params.id;
-    const resp = await Category.find({area: id});
+    const resp = await Category.find({space: id});
 
     res.status(200).json({
         resp        
@@ -36,9 +36,10 @@ const categoryPut = async(req, res) => {
 }
 
 const categoryPost = async(req, res) => {
+    const spaceId = req.params.id;
     const { name } = req.body;
 
-    const newCategory = new Category({name});
+    const newCategory = new Category({name, space: spaceId});
     await newCategory.save();
 
     res.status(201).json({
@@ -48,7 +49,6 @@ const categoryPost = async(req, res) => {
 
 const categoryDelete = async(req, res) => {
     const id = req.params.id;
-    const uid = req.user._id;
 
     const categoryDB = await Category.findById(id)
     if (!categoryDB) {
@@ -66,7 +66,7 @@ const categoryDelete = async(req, res) => {
 
 module.exports = {
     categoryGet,
-    categoryGetByArea,
+    categoryGetBySpace,
     categoryPut,
     categoryPost,
     categoryDelete

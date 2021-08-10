@@ -8,6 +8,16 @@ const areaGet = async(req, res) => {
     })
 }
 
+const areaGetByUserID = async(req, res) => {
+    const id = req.params.id;
+
+    const resp = await Area.find({$or:[{'admins': id}, {'users':id}]});
+
+    res.status(200).json({
+        resp
+    })
+}
+
 const areaPut = async(req, res) => {
     const id = req.params.id;
     const { name } = req.body;
@@ -27,14 +37,16 @@ const areaPut = async(req, res) => {
 }
 
 const areaPost = async(req, res) => {
+
+    const userId = req.user._id
     const { name } = req.body;
 
-    const newArea = new Area({name});
+    const newArea = new Area({name, admins: [userId]});
     await newArea.save();
 
     res.status(201).json({
         newArea
-    });
+    })
 }
 
 const areaDelete = async(req, res) => {
@@ -55,6 +67,7 @@ const areaDelete = async(req, res) => {
 }
 
 module.exports = {
+    areaGetByUserID,
     areaGet,
     areaPut,
     areaPost,

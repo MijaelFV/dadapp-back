@@ -2,12 +2,13 @@ const Item = require('../models/item_model');
 const Inventory = require('../models/inventory_model');
 const InventoryLog = require('../models/inventoryLog_model');
 
-const inventoryLogsGet = async(req, res) => {
-    const skip = req.query.skip ? Number(req.query.skip) : 0
+const inventoryLogsGetByArea = async(req, res) => {
+    // const skip = req.query.skip ? Number(req.query.skip) : 0
+    const id = req.params.id;
 
-    const resp = await InventoryLog.find()
+    const resp = await InventoryLog.find({area: id})
+        // .skip(skip)
         .sort({'time': -1})
-        .skip(skip)
         .limit(7)
         .populate({
             path: 'item',
@@ -77,7 +78,7 @@ const inventoryPut = async(req, res) => {
 
 const inventoryPost = async(req, res) => {
     const uid = req.user._id;
-    const { column, row, item, space } = req.body;
+    const { column, row, item, space, area } = req.body;
 
     const inventoryDB = await Inventory.findOne({item});
     if (inventoryDB) {
@@ -95,7 +96,7 @@ const inventoryPost = async(req, res) => {
 
     const newInventory = new Inventory({column, row, item, space});
     await newInventory.save();
-    const newInventoryLog = new InventoryLog({column, row, item, space, user: uid, type: 'ADD'})
+    const newInventoryLog = new InventoryLog({column, row, item, space, user: uid, area, type: 'ADD'})
     await newInventoryLog.save();
 
 
@@ -127,7 +128,7 @@ const inventoryDelete = async(req, res) => {
 }
 
 module.exports = {
-    inventoryLogsGet,
+    inventoryLogsGetByArea,
     inventoryGet,
     inventoryGetBySpace,
     inventoryPut,

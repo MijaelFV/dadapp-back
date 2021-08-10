@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { spacePut, spacePost, spaceDelete, spaceGet } = require('../controllers/space_controller');
+const { spacePut, spacePost, spaceDelete, spaceGet, spaceGetByArea } = require('../controllers/space_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -10,6 +10,12 @@ router.get('/',[
     validateJWT,
     validateFields
 ], spaceGet);
+
+router.get('/:id',[
+    validateJWT,
+    check('id', 'No es un ID de espacio valido').isMongoId(),
+    validateFields
+], spaceGetByArea);
 
 router.put('/:id',[
     validateJWT,

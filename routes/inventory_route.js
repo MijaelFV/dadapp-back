@@ -1,15 +1,16 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { inventoryLogsGet, inventoryPut, inventoryPost, inventoryDelete, inventoryGet, inventoryGetBySpace } = require('../controllers/inventory_controller');
+const { inventoryLogsGetByArea, inventoryPut, inventoryPost, inventoryDelete, inventoryGet, inventoryGetBySpace } = require('../controllers/inventory_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
 const router = Router();
 
-router.get('/logs',[
+router.get('/logs/:id',[
     validateJWT,
+    check('id', 'No es un ID de inventario valido').isMongoId(),
     validateFields
-], inventoryLogsGet);
+], inventoryLogsGetByArea);
 
 router.get('/',[
     validateJWT,
@@ -33,6 +34,7 @@ router.post('/',[
     check('space', 'El espacio es obligatorio').not().isEmpty(),
     check('column', 'Se necesita la columna obligatoriamente').not().isEmpty(),
     check('row', 'Se necesita la fila obligatoriamente').not().isEmpty(),
+    check('area', 'Se necesita el area obligatoriamente').not().isEmpty(),
     validateFields
 ], inventoryPost);
 

@@ -5,10 +5,10 @@ const CategorySchema = Schema({
         type: String,
         required: [true, 'El nombre es obligatorio']
     },
-    area: {
+    space: {
         type: Schema.Types.ObjectId,
-        ref: 'Area',
-        required: [true, 'El Área es obligatorio'],
+        ref: 'Space',
+        required: [true, 'El espacio es obligatorio'],
     },
 });
 
