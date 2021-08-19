@@ -20,7 +20,7 @@ const spaceGet = async(req, res) => {
 
 const spacePut = async(req, res) => {
     const id = req.params.id;
-    const {area, ...data} = req.body;
+    const {name, rows, columns} = req.body;
 
     const spaceDB = await Space.findById(id)
     if (!spaceDB) {
@@ -29,7 +29,7 @@ const spacePut = async(req, res) => {
         })
     }
 
-    const updatedSpace = await Space.findByIdAndUpdate(id, data, {new: true})
+    const updatedSpace = await Space.findByIdAndUpdate(id, {name, rows, columns}, {new: true})
 
     res.status(200).json({
         updatedSpace

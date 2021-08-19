@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 
 const { dbConnection } = require('../database/config');
 const { migration } = require('../database/migration');
@@ -17,6 +18,7 @@ class Server {
             spaces: '/api/spaces',
             categories: '/api/categories',
             items: '/api/items',
+            uploads: '/api/uploads',
         }
 
         // Conectar a base de datos
@@ -46,6 +48,13 @@ class Server {
         
         // Lectura y parseo del body
         this.app.use(express.json());
+
+        // Fileupload - Carga de archivos
+        this.app.use( fileUpload({
+            useTempFiles : true,
+            tempFileDir : '/tmp/',
+            createParentPath: true
+        }))
     }
 
     routes() {
@@ -56,6 +65,7 @@ class Server {
         this.app.use(this.paths.spaces, require('../routes/space_route'));
         this.app.use(this.paths.categories, require('../routes/category_route'));
         this.app.use(this.paths.items, require('../routes/item_route'));
+        this.app.use(this.paths.uploads, require('../routes/upload_route'));
     }
 
     listen() {

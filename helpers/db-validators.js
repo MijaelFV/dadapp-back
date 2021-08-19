@@ -14,7 +14,16 @@ const uidExists = async(id)=>{
     }
 };
 
+const permittedCollections = (collection = '', collections = []) => {
+    const include = collections.includes(collection);
+    if (!include) {
+        throw new Error(`La coleccion ${collection} no esta permitida, ${collections}`)
+    }
+    return true;
+}
+
 module.exports = {
     emailExists,
-    uidExists
+    uidExists,
+    permittedCollections
 };

@@ -21,10 +21,6 @@ const UserSchema = Schema({
         type: Boolean,
         default: true
     },
-    coworker: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-    }
 });
 
 
