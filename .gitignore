@@ -1,5 +1,5 @@
 node_modules/
 .env
 
-uploads/users/**.*
-uploads/objects/**.*
+uploads/users/*
+uploads/objects/*
