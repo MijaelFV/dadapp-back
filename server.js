@@ -1,26 +1,17 @@
 const express = require('express')
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+const path = require('path')
 
-const { dbConnection } = require('../database/config');
-const { migration } = require('../database/migration');
+const { dbConnection } = require('./database/config');
+const { migration } = require('./database/migration');
+const { readDir } = require('./helpers/handle-files');
 
 class Server {
     constructor() {
         this.app = express()
         this.port = process.env.PORT;
         
-        this.paths = {
-            users: '/api/users',
-            auth: '/api/auth',
-            areas: '/api/areas',
-            inventories: '/api/inventories',
-            spaces: '/api/spaces',
-            categories: '/api/categories',
-            items: '/api/items',
-            uploads: '/api/uploads',
-        }
-
         // Conectar a base de datos
         this.connectDB();
 
@@ -28,7 +19,7 @@ class Server {
         this.middlewares();
 
         // Rutas de mi aplicacion
-        this.routes();
+        this.apiRoutes();
 
         // Ejecutar migracion de DB
         // this.migrate();
@@ -40,6 +31,27 @@ class Server {
     
     async connectDB() {
         await dbConnection();
+    }
+
+    /*
+    Carga rutas de express automaticamente 
+    los archivos deben estar en la carpeta routes
+    y deben finalizar con el nombre "_route" 
+    */
+    async apiRoutes() {
+        const _route = '/api'
+        const _path = path.join(__dirname,'routes');
+        const _replace = '_route';
+        // Recorre el directorio y retorna un array con { file, filename, name }
+        let routes = await readDir(_path,_replace);
+        routes.map(route=>{
+            let apiPath = path.join(_route,route.name);
+            let filePath = path.join(_path,route.filename);
+            // Crea las rutas
+            this.app.use(apiPath, require(filePath));
+
+            console.log("[set_route]",apiPath,"->",filePath);
+        })
     }
 
     middlewares() {
@@ -55,17 +67,6 @@ class Server {
             tempFileDir : '/tmp/',
             createParentPath: true
         }))
-    }
-
-    routes() {
-        this.app.use(this.paths.users, require('../routes/user_route'));
-        this.app.use(this.paths.auth, require('../routes/auth_route'));
-        this.app.use(this.paths.areas, require('../routes/area_route'));
-        this.app.use(this.paths.inventories, require('../routes/inventory_route'));
-        this.app.use(this.paths.spaces, require('../routes/space_route'));
-        this.app.use(this.paths.categories, require('../routes/category_route'));
-        this.app.use(this.paths.items, require('../routes/item_route'));
-        this.app.use(this.paths.uploads, require('../routes/upload_route'));
     }
 
     listen() {
