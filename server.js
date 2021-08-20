@@ -45,8 +45,9 @@ class Server {
         // Recorre el directorio y retorna un array con { file, filename, name }
         let routes = await readDir(_path,_replace);
         routes.map(route=>{
-            let apiPath = path.join(_route,route.name);
+            let apiPath = path.join(_route,route.name).replace(/[\\]/g, '/');
             let filePath = path.join(_path,route.filename);
+
             // Crea las rutas
             this.app.use(apiPath, require(filePath));
 
