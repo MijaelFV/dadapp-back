@@ -8,7 +8,7 @@ const router = Router();
 
 router.get('/logs/:id',[
     validateJWT,
-    check('id', 'No es un ID de inventario valido').isMongoId(),
+    check('id', 'No es un ID de area valida').isMongoId(),
     validateFields
 ], inventoryLogsGetByArea);
 
@@ -19,6 +19,7 @@ router.get('/',[
 
 router.get('/:id',[
     validateJWT,
+    check('id', 'No es un ID de espacio valido').isMongoId(),
     validateFields
 ], inventoryGetBySpace);
 

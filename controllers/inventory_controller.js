@@ -44,7 +44,7 @@ const inventoryGetBySpace = async(req, res) => {
             select: '-__v',
             populate: {
                 path: 'category',
-                select: '-_id -__v -area'
+                select: '-space -__v -area'
             }
         })
 
@@ -108,6 +108,7 @@ const inventoryPost = async(req, res) => {
 const inventoryDelete = async(req, res) => {
     const id = req.params.id;
     const uid = req.user._id;
+    const { area } = req.body;
 
     const inventoryDB = await Inventory.findById(id)
     if (!inventoryDB) {
@@ -119,7 +120,7 @@ const inventoryDelete = async(req, res) => {
     await Inventory.findByIdAndDelete(id)
 
     const { item, space } = inventoryDB;
-    const newInventoryLog = new InventoryLog({item, row: null, column: null, space, user: uid, type: 'REMOVE'})
+    const newInventoryLog = new InventoryLog({item, row: null, column: null, space, user: uid, area, type: 'REMOVE'})
     await newInventoryLog.save();
 
     res.status(200).json({
