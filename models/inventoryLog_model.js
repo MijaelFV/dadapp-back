@@ -13,7 +13,9 @@ const InventoryLogSchema = Schema({
     item: {
         type: Schema.Types.ObjectId,
         ref: 'Item',
-        required: [true, 'El item es obligatorio'],
+    },
+    itemName: {
+        type: String,
     },
     column: {
         type: Number,

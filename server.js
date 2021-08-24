@@ -50,8 +50,6 @@ class Server {
 
             // Crea las rutas
             this.app.use(apiPath, require(filePath));
-
-            console.log("[set_route]",apiPath,"->",filePath);
         })
     }
 

@@ -154,14 +154,16 @@ const imageGet = async(req, res = response) => {
 
     let pathImage;
 
-    if (!model.image && collection === "objects") {
+    if (!model.image && collection === "users") {
+        return res.json()
+    } else if (!model.image && collection === "objects") {
         pathImage = path.join(__dirname, '../assets/no-image.jpg');
         return res.sendFile(pathImage)
     }
 
     pathImage = path.join(__dirname, `../uploads/${collection}/${model.image}`);
 
-    res.sendFile(pathImage)
+    res.sendFile(pathImage);
 }
 
 module.exports = {
