@@ -34,11 +34,11 @@ const imagePut = async(req, res = response) => {
             
         break;
 
-        case 'objects':
+        case 'items':
             model = await Item.findById(id);
             if (!model) {
                 return res.status(400).json({
-                    msg: `No existe un Item con el id ${id}`
+                    msg: `No existe un item con el id ${id}`
                 })
             }
             
@@ -57,7 +57,6 @@ const imagePut = async(req, res = response) => {
             fs.unlinkSync(pathImagen);
         }
     }
-
 
     const name = await uploadFile(req.files, undefined, collection );
     model.image = name;
@@ -86,7 +85,7 @@ const imagePut = async(req, res = response) => {
             
 //         break;
 
-//         case 'objects':
+//         case 'items':
 //             model = await Item.findById(id);
 //             if (!model) {
 //                 return res.status(400).json({
@@ -137,7 +136,7 @@ const imageGet = async(req, res = response) => {
             
         break;
 
-        case 'objects':
+        case 'items':
             model = await Item.findById(id);
             if (!model) {
                 return res.status(400).json({
@@ -156,7 +155,7 @@ const imageGet = async(req, res = response) => {
 
     if (!model.image && collection === "users") {
         return res.json()
-    } else if (!model.image && collection === "objects") {
+    } else if (!model.image && collection === "items") {
         pathImage = path.join(__dirname, '../assets/no-image.jpg');
         return res.sendFile(pathImage)
     }

@@ -12,13 +12,13 @@ router.post('/', validateFiles, imagePost)
 router.put('/:collection/:id', [
     validateFiles,
     check('id', 'El ID debe ser de Mongo').isMongoId(),
-    check('collection').custom(c => permittedCollections(c, ['users','objects'])),
+    check('collection').custom(c => permittedCollections(c, ['users','items'])),
     validateFields
 ], imagePut)
 
 router.get('/:collection/:id', [
     check('id', 'El ID debe ser de Mongo').isMongoId(),
-    check('collection').custom(c => permittedCollections(c, ['users','objects'])),
+    check('collection').custom(c => permittedCollections(c, ['users','items'])),
     validateFields
 ], imageGet)
 

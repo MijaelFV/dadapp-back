@@ -1,6 +1,9 @@
 const { Schema, model } = require('mongoose');
 
 const ItemSchema = Schema({
+    image: {
+        type: String,
+    },
     name: {
         type: String,
         required: [true, 'El nombre es obligatorio']
