@@ -107,7 +107,7 @@ const itemPut = async(req, res) => {
     
         const updatedItem = await Item.findByIdAndUpdate(itemId, data, {new: true})
     
-        if (itemDB.row !== updatedItem.row && itemDB.column !== updatedItem.column) {
+        if (itemDB.row !== updatedItem.row || itemDB.column !== updatedItem.column) {
             const newInventoryLog = new InventoryLog({column, row, item: updatedItem._id, itemName: updatedItem.name, space : updatedItem.space, user: uid, area, type: 'MODIFY'})
             await newInventoryLog.save();
         }
@@ -180,17 +180,27 @@ const itemDelete = async(req, res) => {
                 msg: `No existe un item con el id ${itemId}`
             })
         }
+
+        let model;
     
         switch (type) {
             case 1:
-                    await Item.findByIdAndDelete(itemId)
+                    model = await Item.findByIdAndDelete(itemId)
                 break;
         
             case 2:
-                    await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
+                    model = await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
                 break;
         }
-    
+
+        // Eliminar imagen del item
+        if (model.image) {
+            const pathImagen = path.join(__dirname, '../uploads', collection, model.image);
+            if (fs.existsSync(pathImagen)) {
+                fs.unlinkSync(pathImagen);
+            }
+        }
+
         const newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'DELETE'})
         await newInventoryLog.save();
     
