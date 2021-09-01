@@ -1,10 +1,10 @@
 const path = require('path');
-const fs = require('fs');
 
 const { response } = require("express");
 const { uploadFile } = require('../helpers/upload-file');
 const User = require('../models/user_model');
 const Item = require('../models/item_model');
+const { deleteImage } = require('../helpers/delete-image');
 
 const imagePost = async(req, res = response) => {
     try {
@@ -48,13 +48,7 @@ const imagePut = async(req, res = response) => {
     }
 
     // Limpiar imagenes previas
-    if (model.image) {
-        // Hay que borrar la imagen del servidor
-        const pathImagen = path.join(__dirname, '../uploads', collection, model.image);
-        if (fs.existsSync(pathImagen)) {
-            fs.unlinkSync(pathImagen);
-        }
-    }
+    deleteImage(model, collection)
 
     const name = await uploadFile(req.files, undefined, collection );
     model.image = name;

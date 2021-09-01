@@ -1,3 +1,7 @@
+const { deleteImage } = require('../helpers/delete-image');
+const Category = require('../models/category_model');
+const InventoryLog = require('../models/inventoryLog_model');
+const Item = require('../models/item_model');
 const Space = require('../models/space_model');
 
 const spaceGetByArea = async(req, res) => {
@@ -49,6 +53,14 @@ const spaceDelete = async(req, res) => {
         })
     }
 
+    await InventoryLog.deleteMany({space: id});
+    await Item.find({space:id}).then((items) => {
+        items.forEach(item => {
+            deleteImage(item, "items")
+        })
+    })
+    await Item.deleteMany({space: id}).then()
+    await Category.deleteMany({space: id});
     const deletedSpace = await Space.findByIdAndDelete(id)
 
     res.status(200).json(deletedSpace)

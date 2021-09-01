@@ -1,6 +1,7 @@
 const Item = require('../models/item_model');
 const InventoryLog = require('../models/inventoryLog_model');
 const Space = require('../models/space_model');
+const { deleteImage } = require('../helpers/delete-image');
 
 const inventoryLogsGet = async(req, res) => {
     // const skip = req.query.skip ? Number(req.query.skip) : 0
@@ -194,12 +195,7 @@ const itemDelete = async(req, res) => {
         }
 
         // Eliminar imagen del item
-        if (model.image) {
-            const pathImagen = path.join(__dirname, '../uploads', collection, model.image);
-            if (fs.existsSync(pathImagen)) {
-                fs.unlinkSync(pathImagen);
-            }
-        }
+        deleteImage(model, "items")
 
         const newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'DELETE'})
         await newInventoryLog.save();
