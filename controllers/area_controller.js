@@ -36,24 +36,24 @@ const areaJoin = async(req, res) => {
 }
 
 const areaRenewInviteCode = async(req, res) => {
-    // const userId = req.user._id
-    // const areaid = req.body.area;
+    const userId = req.user._id
+    const areaid = req.body.area;
 
-    // const areaDB = await Area.findById(areaid)
-    // if (!areaDB) {
-    //     return res.status(404).json({
-    //         msg: `No existe un area con el id ${areaid}`
-    //     })
-    // } else if (!areaDB.admins.includes(userId)) {
-    //     return res.status(401).json({
-    //         msg: `No eres administrador del area con el id ${areaid}`
-    //     })
-    // }
+    const areaDB = await Area.findById(areaid)
+    if (!areaDB) {
+        return res.status(404).json({
+            msg: `No existe un area con el id ${areaid}`
+        })
+    } else if (!areaDB.admins.includes(userId)) {
+        return res.status(401).json({
+            msg: `No eres administrador del area con el id ${areaid}`
+        })
+    }
     
     const newCode = shortid.generate();
-    // await Area.findByIdAndUpdate(areaid, {inviteCode: newCode})
+    await Area.findByIdAndUpdate(areaid, {inviteCode: newCode})
 
-    res.status(200).json({msg: 'Succefully renewed invitation code', newCode})
+    res.status(200).json({msg: 'Succefully renewed invitation code'})
 }
 
 const areaPut = async(req, res) => {
