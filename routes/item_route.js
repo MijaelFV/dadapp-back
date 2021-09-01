@@ -1,20 +1,27 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { itemPut, itemPost, itemDelete, inventoryGet, inventoryLogsGet, inventoryGetBySpace } = require('../controllers/item_controller');
+const { itemPut, itemPost, itemDelete, itemGetById, inventoryLogsGet, inventoryGetBySpace, inventoryGetByQuery, inventoryGetByTaked, itemReturn } = require('../controllers/item_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
 const router = Router();
 
-router.get('/inventories',[
+router.get('/:id',[
     validateJWT,
     validateFields
-], inventoryGet);
+], itemGetById);
 
 router.get('/inventory/:id',[
     validateJWT,
+    check('id', 'No es un ID de inventario valido').isMongoId(),
     validateFields
 ], inventoryGetBySpace);
+
+router.get('/taked/:id',[
+    validateJWT,
+    check('id', 'No es un ID de area valido').isMongoId(),
+    validateFields
+], inventoryGetByTaked);
 
 router.get('/logs/:type/:id',[
     validateJWT,
@@ -22,12 +29,27 @@ router.get('/logs/:type/:id',[
     validateFields
 ], inventoryLogsGet);
 
+router.get('/search/:id',[
+    validateJWT,
+    check('id', 'No es un ID de inventario valido').isMongoId(),
+    validateFields
+], inventoryGetByQuery);
+
 router.put('/:id',[
     validateJWT,
     check('id', 'No es un ID de objeto valido').isMongoId(),
     check('area', 'Se necesita el area obligatoriamente').not().isEmpty(),
     validateFields
 ], itemPut);
+
+router.put('/taked/return/:id',[
+    validateJWT,
+    check('id', 'No es un ID de objeto valido').isMongoId(),
+    check('space', 'No es un ID de espacio valido').isMongoId(),
+    check('column', 'Se necesita la columna obligatoriamente').not().isEmpty(),
+    check('row', 'Se necesita la fila obligatoriamente').not().isEmpty(),
+    validateFields
+], itemReturn);
 
 router.post('/',[
     validateJWT,

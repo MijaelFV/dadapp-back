@@ -11,9 +11,8 @@ router.get('/',[
     validateFields
 ], areaGet);
 
-router.get('/:id',[
+router.get('/user',[
     validateJWT,
-    check('id', 'No es un ID de area valido').isMongoId(),
     validateFields
 ], areaGetByUserID);
 

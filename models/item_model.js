@@ -29,10 +29,13 @@ const ItemSchema = Schema({
         type: Number,
         required: [true, 'La fila es obligatoria'],
     },
-    active: {
-        type: Boolean,
-        default: true,
-        required: [true, 'Tener un estado es obligatorio']
+    takedBy: {
+        type: Schema.Types.ObjectId,
+        default: null,
+    },
+    takedDate: {
+        type: Date,
+        default: null,
     }
 });
 

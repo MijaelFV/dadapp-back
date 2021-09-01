@@ -3,18 +3,14 @@ const Category = require("../models/category_model");
 const categoryGet = async(req, res) => {
     const resp = await Category.find();
 
-    res.status(200).json({
-        resp        
-    })
+    res.status(200).json(resp)
 }
 
 const categoryGetBySpace = async(req, res) => {
     const id = req.params.id;
     const resp = await Category.find({space: id});
 
-    res.status(200).json({
-        resp        
-    })
+    res.status(200).json(resp)
 }
 
 const categoryPut = async(req, res) => {
@@ -30,9 +26,7 @@ const categoryPut = async(req, res) => {
 
     const updatedCategory = await Category.findByIdAndUpdate(id, {name}, {new: true})
 
-    res.status(200).json({
-        updatedCategory
-    })
+    res.status(200).json(updatedCategory)
 }
 
 const categoryPost = async(req, res) => {
@@ -42,9 +36,7 @@ const categoryPost = async(req, res) => {
     const newCategory = new Category({name, space: spaceId});
     await newCategory.save();
 
-    res.status(201).json({
-        newCategory
-    });
+    res.status(201).json(newCategory);
 }
 
 const categoryDelete = async(req, res) => {
@@ -59,9 +51,7 @@ const categoryDelete = async(req, res) => {
 
     const deletedCategory = await Category.findByIdAndDelete(id)
 
-    res.status(200).json({
-        deletedCategory
-    })
+    res.status(200).json(deletedCategory)
 }
 
 module.exports = {
