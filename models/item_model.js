@@ -41,7 +41,7 @@ const ItemSchema = Schema({
 
 
 ItemSchema.methods.toJSON = function() {
-    const {__v, _id, ...item} = this.toObject();
+    const {__v, _id, image, ...item} = this.toObject();
     item.uid = _id;
     return item;
 }
