@@ -1,6 +1,7 @@
 const Item = require('../models/item_model');
 const Space = require('../models/space_model');
 const User = require('../models/user_model');
+const Area = require('../models/area_model');
 
 const searchGetByQuery = async(req, res) => {
     const {id, type} = req.params;
@@ -23,7 +24,10 @@ const searchGetByQuery = async(req, res) => {
     }
 
     const usersSearch = async() => {
-        const resp = await User.find({name: {$regex: regex}, active: true})
+        const usersFromArea = await Area.find({_id: id}).select("users admins -_id")
+        const {admins, users} = usersFromArea[0]
+
+        const resp = await User.find({name: {$regex: regex}, active: true}).or([{_id: admins}, {_id: users}])
         return resp
     }
 
