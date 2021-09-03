@@ -2,6 +2,15 @@ const User = require('../models/user_model');
 const bcryptjs = require('bcryptjs');
 const { generateJWT } = require('../helpers/generate-jwt');
 
+const userGetById = async(req, res) => {
+    const id = req.params.id;
+
+    const user = await User.findOne({_id: id, active: true})
+        .select('-image -active')
+
+    res.status(200).json(user)
+}
+
 const userGet = async(req, res) => {
     const resp = await User.find();
     
@@ -87,6 +96,7 @@ const userRevalidate = async(req, res) => {
 } 
 
 module.exports = {
+    userGetById,
     userGet,
     userPut,
     userPost,

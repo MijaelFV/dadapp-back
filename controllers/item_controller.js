@@ -20,15 +20,15 @@ const inventoryLogsGet = async(req, res) => {
         .limit(7)
         .populate({
             path: 'item',
-            select: '-description -__v -category'
+            select: 'name column row'
         })
         .populate({
             path: 'space',
-            select: '-area -__v -rows -columns'
+            select: 'name'
         })
         .populate({
             path: 'user',
-            select: '-__v -password -email -active',
+            select: 'name',
         })
 
     res.status(200).json(resp)
