@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { itemPut, itemPost, itemDelete, itemGetById, inventoryLogsGet, inventoryGetBySpace, inventoryGetByQuery, inventoryGetByTaked, itemReturn } = require('../controllers/item_controller');
+const { itemPut, itemPost, itemDelete, itemGetById, inventoryLogsGet, inventoryGetBySpace, inventoryGetByTaked, itemReturn } = require('../controllers/item_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -28,12 +28,6 @@ router.get('/logs/:type/:id',[
     check('id', 'No es un ID de inventario valido').isMongoId(),
     validateFields
 ], inventoryLogsGet);
-
-router.get('/search/:id',[
-    validateJWT,
-    check('id', 'No es un ID de inventario valido').isMongoId(),
-    validateFields
-], inventoryGetByQuery);
 
 router.put('/:id',[
     validateJWT,

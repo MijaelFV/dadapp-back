@@ -5,21 +5,29 @@ const Area = require('../models/area_model');
 
 const searchGetByQuery = async(req, res) => {
     const {id, type} = req.params;
-    const {query} = req.query;
+    const {query, spaceid} = req.query;
 
     const regex = new RegExp(query, 'i');
 
     const itemsSearch = async() => {
-        const spacesFromArea = await Space.find({area: id}).select("_id")
-        const uidList = spacesFromArea.map((uid) => (
-            JSON.stringify(uid).replace(/[^a-zA-Z0-9]/g, '').substring(3)
-        ));
+        let uidList;
+
+        if (spaceid) {
+            uidList = spaceid
+        } else {
+            const spacesFromArea = await Space.find({area: id}).select("_id")
+            uidList = spacesFromArea.map((uid) => (
+                JSON.stringify(uid).replace(/[^a-zA-Z0-9]/g, '').substring(3)
+            ));
+        }
+        
         const resp = await Item.find({name: {$regex: regex}, takedBy: null})
             .where('space')
             .in(uidList)
             .select('-takedBy -takedDate')
-            .populate('category')
-            .populate('space') 
+            .populate('category', '_id name')
+            .populate('space', '_id name') 
+
         return resp
     }
 

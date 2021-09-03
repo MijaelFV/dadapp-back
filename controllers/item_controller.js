@@ -52,7 +52,7 @@ const inventoryGetBySpace = async(req, res) => {
     const spaceId = req.params.id;
     
     const resp = await Item.find({space: spaceId, takedBy: null})
-        .select('-space')
+        .select('-space -takedBy -takedDate')
         .populate({
             path: 'category',
             select: '-__v -area -space'
@@ -61,26 +61,15 @@ const inventoryGetBySpace = async(req, res) => {
     res.status(200).json(resp)
 }
 
-const inventoryGetByQuery = async(req, res) => {
-    const areaId = req.params.id;
-    const {query} = req.query;
-    
-    const spacesFromArea = await Space.find({area: areaId}).select("_id")
-    const uidList = spacesFromArea.map((uid) => (
-        JSON.stringify(uid).replace(/[^a-zA-Z0-9]/g, '').substring(3)
-    ));
-
-    const regex = new RegExp(query, 'i');
-    const resp = await Item.find({name: {$regex: regex}, takedBy: null}).where('space').in(uidList);
-
-
-    res.status(200).json(resp)
-}
-
 const itemGetById = async(req, res) => {
     const id = req.params.id;
 
-    const item = await Item.findOne({_id: id, takedBy: null});
+    const item = await Item.findOne({_id: id, takedBy: null})
+        .select('-space -takedBy -takedDate')
+        .populate({
+            path: 'category',
+            select: '-__v -area -space'
+        })
 
     res.status(200).json(item)
 }
@@ -210,7 +199,6 @@ module.exports = {
     inventoryGetByTaked,
     inventoryLogsGet,
     inventoryGetBySpace,
-    inventoryGetByQuery,
     itemGetById,
     itemPut,
     itemPost,
