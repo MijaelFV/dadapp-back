@@ -12,15 +12,17 @@ const inventoryLogsGet = async(req, res) => {
         query = {area: id}
     } else if (type === "2") {
         query = {item: id}
+    } else if (type === "3") {
+        query = {user: id}
     }
 
     const resp = await InventoryLog.find(query)
         // .skip(skip)
         .sort({'time': -1})
-        .limit(7)
+        .limit(10)
         .populate({
             path: 'item',
-            select: 'name column row'
+            select: 'name column row takedBy'
         })
         .populate({
             path: 'space',
