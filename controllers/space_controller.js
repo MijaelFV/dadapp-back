@@ -42,6 +42,9 @@ const spacePut = async(req, res) => {
             }
         }
 
+        const updatedSpace = await Space.findByIdAndUpdate(id, {name}, {new: true})
+        res.status(200).json(updatedSpace)
+
     } catch (error) {
         console.log(error);
     }
