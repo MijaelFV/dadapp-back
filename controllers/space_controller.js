@@ -19,19 +19,32 @@ const spaceGet = async(req, res) => {
 }
 
 const spacePut = async(req, res) => {
-    const id = req.params.id;
-    const {name, rows, columns} = req.body;
+    try {
+        const id = req.params.id;
+        const {name, rows, columns} = req.body;
 
-    const spaceDB = await Space.findById(id)
-    if (!spaceDB) {
-        return res.status(400).json({
-            msg: `No existe un espacio con el id ${id}`
-        })
+        const spaceDB = await Space.findById(id)
+        if (!spaceDB) {
+            return res.status(400).json({
+                msg: `No existe un espacio con el id ${id}`
+            })
+        }
+
+        if (rows !== spaceDB.rows || columns !== spaceDB.columns) {
+            const matchedItems = await Item.find({space:id}).or([{row: {$gt: rows}}, {column: {$gt: columns}}])
+            if (matchedItems.length !== 0) {
+                return res.status(400).json({
+                    msg: `Las posiciones que quieres remover contienen articulos`
+                });
+            } else {
+                const updatedSpace = await Space.findByIdAndUpdate(id, {name, rows, columns}, {new: true})
+                res.status(200).json(updatedSpace)
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
     }
-
-    const updatedSpace = await Space.findByIdAndUpdate(id, {name, rows, columns}, {new: true})
-
-    res.status(200).json(updatedSpace)
 }
 
 const spacePost = async(req, res) => {
