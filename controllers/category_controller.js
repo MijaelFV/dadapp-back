@@ -1,4 +1,5 @@
 const Category = require("../models/category_model");
+const Item = require("../models/item_model");
 
 const categoryGet = async(req, res) => {
     const resp = await Category.find();
@@ -40,18 +41,28 @@ const categoryPost = async(req, res) => {
 }
 
 const categoryDelete = async(req, res) => {
-    const id = req.params.id;
+    try {
+        const id = req.params.id;
 
-    const categoryDB = await Category.findById(id)
-    if (!categoryDB) {
-        return res.status(400).json({
-            msg: `No existe una categoria con el id ${id}`
-        })
+        const categoryDB = await Category.findById(id)
+        if (!categoryDB) {
+            return res.status(400).json({
+                msg: `No existe una categoria con el id ${id}`
+            })
+        }
+
+        const matchedItems = await Item.findOne({category: id})
+        if (matchedItems.length !== 0) {
+            return res.status(400).json({
+                msg: `Existen articulos asignados a esta categoria`
+            });
+        } else {
+            const deletedCategory = await Category.findByIdAndDelete(id)
+            res.status(200).json(deletedCategory)
+        }
+    } catch (error) {
+        console.log(error);
     }
-
-    const deletedCategory = await Category.findByIdAndDelete(id)
-
-    res.status(200).json(deletedCategory)
 }
 
 module.exports = {

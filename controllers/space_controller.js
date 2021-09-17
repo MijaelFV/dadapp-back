@@ -31,7 +31,7 @@ const spacePut = async(req, res) => {
         }
 
         if (rows !== spaceDB.rows || columns !== spaceDB.columns) {
-            const matchedItems = await Item.find({space:id}).or([{row: {$gt: rows}}, {column: {$gt: columns}}])
+            const matchedItems = await Item.findOne({space:id}).or([{row: {$gt: rows}}, {column: {$gt: columns}}])
             if (matchedItems.length !== 0) {
                 return res.status(400).json({
                     msg: `Las posiciones que quieres remover contienen articulos`
