@@ -151,7 +151,7 @@ const itemReturn = async(req, res) => {
     
         const returnedItem = await Item.findByIdAndUpdate(itemId, {space, column, row, takedBy: null, takedDate: null}, {new: true})
     
-        const newInventoryLog = new InventoryLog({column, row, item: returnedItem._id, itemName: returnedItem.name, space : returnedItem.space, user: uid, area, type: 'ADD'})
+        const newInventoryLog = new InventoryLog({column, row, item: returnedItem._id, itemName: returnedItem.name, space : returnedItem.space, user: uid, area, type: 'RETURNED'})
         await newInventoryLog.save();
 
         res.status(200).json(returnedItem)
@@ -174,6 +174,7 @@ const itemDelete = async(req, res) => {
         }
 
         let model;
+        let newInventoryLog
     
         switch (type) {
             case 1:
@@ -182,13 +183,17 @@ const itemDelete = async(req, res) => {
         
             case 2:
                     model = await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
+                    newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'TAKED'})
+                    await newInventoryLog.save();
+                
+                    return res.status(200).json(newInventoryLog)
                 break;
         }
 
         // Eliminar imagen del item
         deleteImage(model, "items")
 
-        const newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'DELETE'})
+        newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'DELETE'})
         await newInventoryLog.save();
     
         res.status(200).json(newInventoryLog)
