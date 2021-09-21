@@ -31,6 +31,7 @@ const ItemSchema = Schema({
     },
     takedBy: {
         type: Schema.Types.ObjectId,
+        ref: 'User',
         default: null,
     },
     takedDate: {
