@@ -10,7 +10,17 @@ const areaGet = async(req, res) => {
 const areaGetByUserID = async(req, res) => {
     const id = req.user._id
 
-    const resp = await Area.find({$or:[{'admins': id}, {'users':id}]});
+    const resp = await Area.find({$or:[{'admins': id}, {'users':id}]}).select('-inviteCode');
+
+    res.status(200).json(resp)
+}
+
+const areaGetByID = async(req, res) => {
+    const userid = req.user._id
+    const areaid = req.params.id
+
+    const select = "_id name email"
+    const resp = await Area.findOne({_id: areaid, admins: userid}).populate({path: "admins", select}).populate({path: "users", select})
 
     res.status(200).json(resp)
 }
@@ -24,7 +34,7 @@ const areaJoin = async(req, res) => {
         return res.status(404).json({
             msg: `No existe el codigo de invitacion ${code}`
         })
-    } else if (matchedArea.users.includes(id)) {
+    } else if (matchedArea.users.includes(id) || matchedArea.admins.includes(id)) {
         return res.status(409).json({
             msg: `Ya eres miembro del area`
         })
@@ -37,7 +47,7 @@ const areaJoin = async(req, res) => {
 
 const areaRenewInviteCode = async(req, res) => {
     const userId = req.user._id
-    const areaid = req.body.area;
+    const areaid = req.body.areaid;
 
     const areaDB = await Area.findById(areaid)
     if (!areaDB) {
@@ -53,7 +63,7 @@ const areaRenewInviteCode = async(req, res) => {
     const newCode = shortid.generate();
     await Area.findByIdAndUpdate(areaid, {inviteCode: newCode})
 
-    res.status(200).json({msg: 'Succefully renewed invitation code'})
+    res.status(200).json(newCode)
 }
 
 const areaPut = async(req, res) => {
@@ -67,7 +77,7 @@ const areaPut = async(req, res) => {
         })
     }
 
-    const updatedArea = await Area.findByIdAndUpdate(id, {name}, {new: true})
+    const updatedArea = await Area.findByIdAndUpdate(id, {name}, {new: true}).populate('admins').populate('users')
 
     res.status(200).json(updatedArea)
 }
@@ -100,6 +110,7 @@ const areaDelete = async(req, res) => {
 
 module.exports = {
     areaGetByUserID,
+    areaGetByID,
     areaGet,
     areaJoin,
     areaRenewInviteCode,

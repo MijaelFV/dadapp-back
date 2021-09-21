@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { areaPut, areaPost, areaDelete, areaGet, areaGetByUserID, areaJoin, areaRenewInviteCode } = require('../controllers/area_controller');
+const { areaPut, areaPost, areaDelete, areaGet, areaGetByUserID, areaJoin, areaRenewInviteCode, areaGetByID } = require('../controllers/area_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -16,6 +16,11 @@ router.get('/user',[
     validateFields
 ], areaGetByUserID);
 
+router.get('/:id',[
+    validateJWT,
+    validateFields
+], areaGetByID);
+
 router.put('/code/join',[
     validateJWT,
     check('code', 'No es un codigo de invitacion valido').not().isEmpty(),
@@ -24,6 +29,7 @@ router.put('/code/join',[
 
 router.put('/code/renew',[
     validateJWT,
+    check('areaid', 'No es un ID de area valido').isMongoId(),
     validateFields
 ], areaRenewInviteCode);
 
