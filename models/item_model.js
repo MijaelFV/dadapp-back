@@ -3,6 +3,7 @@ const { Schema, model } = require('mongoose');
 const ItemSchema = Schema({
     image: {
         type: String,
+        default: null
     },
     name: {
         type: String,
@@ -10,6 +11,7 @@ const ItemSchema = Schema({
     },
     description: {
         type: String,
+        default: null
     },
     category: {
         type: Schema.Types.ObjectId,
@@ -37,9 +39,16 @@ const ItemSchema = Schema({
     takedDate: {
         type: Date,
         default: null,
+    },
+    expiryDate: {
+        type: Date,
+        default: null
+    },
+    quantity: {
+        type: Number,
+        default: null
     }
 });
-
 
 ItemSchema.methods.toJSON = function() {
     const {__v, _id, image, ...item} = this.toObject();

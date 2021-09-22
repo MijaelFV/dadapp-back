@@ -94,7 +94,7 @@ const itemPut = async(req, res) => {
     try {
         const itemId = req.params.id;
         const uid = req.user._id;
-        const { name, description, category, column, row, area } = req.body;
+        const { name, description, category, column, row, area, expiryDate, quantity } = req.body;
         
         const itemDB = await Item.findById(itemId)
         if (!itemDB) {
@@ -108,7 +108,9 @@ const itemPut = async(req, res) => {
             description: description || itemDB.description,
             category: category || itemDB.category,
             column: column || itemDB.column,
-            row: row || itemDB.row
+            row: row || itemDB.row,
+            expiryDate: expiryDate || itemDB.expiryDate,
+            quantity: quantity || itemDB.quantity
         }; 
     
         const updatedItem = await Item.findByIdAndUpdate(itemId, data, {new: true})
@@ -127,14 +129,16 @@ const itemPut = async(req, res) => {
 const itemPost = async(req, res) => {
     try {
         const uid = req.user._id;
-        const { name, description, category, column, row, space, area } = req.body;
+        const { name, description, category, column, row, space, area, expiryDate, quantity } = req.body;
         const data = {
             name,
             description,
             category,
             column,
             row,
-            space
+            space,
+            expiryDate,
+            quantity
         };
     
         const newItem = new Item(data);
