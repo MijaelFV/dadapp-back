@@ -197,7 +197,7 @@ const itemDelete = async(req, res) => {
         
             case 2:
                     model = await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
-                    newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'TAKED'})
+                    newInventoryLog = new InventoryLog({column: null, row: null, item: itemDB._id, space: itemDB.space, user: uid, area, type: 'TAKED'})
                     await newInventoryLog.save();
                 
                     return res.status(200).json(newInventoryLog)
