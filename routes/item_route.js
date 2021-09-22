@@ -23,9 +23,10 @@ router.get('/taked/:id',[
     validateFields
 ], inventoryGetByTaked);
 
-router.get('/logs/:type/:id',[
+router.get('/logs/:type/:id/:areaid?',[
     validateJWT,
     check('id', 'No es un ID de inventario valido').isMongoId(),
+    check('type', 'No es un tipo de request valido').not().isEmpty(),
     validateFields
 ], inventoryLogsGet);
 

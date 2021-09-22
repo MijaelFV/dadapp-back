@@ -5,7 +5,7 @@ const { deleteImage } = require('../helpers/delete-image');
 
 const inventoryLogsGet = async(req, res) => {
     // const skip = req.query.skip ? Number(req.query.skip) : 0
-    const {type, id} = req.params;
+    const {type, id, areaid} = req.params;
     let query;
 
     if (type === "1") {
@@ -13,7 +13,7 @@ const inventoryLogsGet = async(req, res) => {
     } else if (type === "2") {
         query = {item: id}
     } else if (type === "3") {
-        query = {user: id}
+        query = {user: id, area: areaid}
     }
 
     const resp = await InventoryLog.find(query)
