@@ -54,13 +54,16 @@ const inventoryGetBySpace = async(req, res) => {
     const spaceId = req.params.id;
     
     const resp = await Item.find({space: spaceId})
-        .select('-space')
         .populate({
             path: 'category',
-            select: '-__v -area -space'
+            select: 'name'
         })
         .populate({
             path: 'takedBy',
+            select: 'name'
+        })
+        .populate({
+            path: 'space',
             select: 'name'
         })
 
@@ -70,11 +73,18 @@ const inventoryGetBySpace = async(req, res) => {
 const itemGetById = async(req, res) => {
     const id = req.params.id;
 
-    const item = await Item.findOne({_id: id, takedBy: null})
-        .select('-space -takedBy -takedDate')
+    const item = await Item.findOne({_id: id})
         .populate({
             path: 'category',
-            select: '-__v -area -space'
+            select: 'name'
+        })
+        .populate({
+            path: 'takedBy',
+            select: 'name'
+        })
+        .populate({
+            path: 'space',
+            select: 'name'
         })
 
     res.status(200).json(item)
