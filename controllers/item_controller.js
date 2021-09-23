@@ -94,7 +94,7 @@ const itemPut = async(req, res) => {
     try {
         const itemId = req.params.id;
         const uid = req.user._id;
-        const { name, description, category, column, row, area, expiryDate, quantity } = req.body;
+        const { name, description, category, column, row, area, expiryDate, quantity} = req.body;
         
         const itemDB = await Item.findById(itemId)
         if (!itemDB) {
@@ -109,8 +109,8 @@ const itemPut = async(req, res) => {
             category: category || itemDB.category,
             column: column || itemDB.column,
             row: row || itemDB.row,
-            expiryDate: expiryDate || itemDB.expiryDate,
-            quantity: quantity || itemDB.quantity
+            expiryDate: expiryDate === '' ? null : expiryDate,
+            quantity: quantity === '' ? null : quantity
         }; 
     
         const updatedItem = await Item.findByIdAndUpdate(itemId, data, {new: true})
@@ -178,11 +178,11 @@ const itemReturn = async(req, res) => {
     }
 }
 
-const itemDelete = async(req, res) => {
+const itemRemove = async(req, res) => {
     try {
         const itemId = req.params.id;
         const uid = req.user._id;
-        const { area, type } = req.body;
+        const { area, type, consume } = req.body;
     
         const itemDB = await Item.findById(itemId)
         if (!itemDB) {
@@ -196,12 +196,25 @@ const itemDelete = async(req, res) => {
     
         switch (type) {
             case 1:
+                    // Eliminar permanentemente un articulo
                     model = await Item.findByIdAndDelete(itemId)
                 break;
         
-            case 2:
-                    await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
+            case 2: 
+                    // Retirar un articulo con la posibilidad de devolverlo
+                    await Item.updateOne(itemId, {takedBy: uid, takedDate: new Date})
                     newInventoryLog = new InventoryLog({column: null, row: null, item: itemDB._id, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'TAKED'})
+                    await newInventoryLog.save();
+                
+                    return res.status(200).json(newInventoryLog)
+                break;
+
+            case 3:
+                    // Consumir una o mas unidades de las disponibles de un articulo 
+                    const quantity = itemDB.quantity - consume
+
+                    await Item.updateOne(itemId, {quantity})
+                    newInventoryLog = new InventoryLog({column: itemDB.column, row: itemDB.row, item: itemDB._id, itemName: itemDB.name, quantity: consume, space: itemDB.space, user: uid, area, type: 'CONSUMED'})
                     await newInventoryLog.save();
                 
                     return res.status(200).json(newInventoryLog)
@@ -228,5 +241,5 @@ module.exports = {
     itemPut,
     itemPost,
     itemReturn,
-    itemDelete
+    itemRemove
 }

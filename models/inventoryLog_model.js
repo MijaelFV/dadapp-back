@@ -17,6 +17,9 @@ const InventoryLogSchema = Schema({
     itemName: {
         type: String,
     },
+    quantity: {
+        type: Number,
+    },
     column: {
         type: Number,
     },

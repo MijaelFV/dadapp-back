@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { itemPut, itemPost, itemDelete, itemGetById, inventoryLogsGet, inventoryGetBySpace, inventoryGetByTaked, itemReturn } = require('../controllers/item_controller');
+const { itemPut, itemPost, itemRemove, itemGetById, inventoryLogsGet, inventoryGetBySpace, inventoryGetByTaked, itemReturn } = require('../controllers/item_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -61,6 +61,6 @@ router.delete('/:id',[
     validateJWT,
     check('id', 'No es un ID de objeto valido').isMongoId(),
     validateFields
-], itemDelete);
+], itemRemove);
 
 module.exports = router;
