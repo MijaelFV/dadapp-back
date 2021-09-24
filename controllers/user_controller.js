@@ -14,7 +14,7 @@ const userGetById = async(req, res) => {
 const userGet = async(req, res) => {
     const resp = await User.find();
     
-    res.json({
+    res.status(200).json({
         resp
     })
 }
@@ -31,7 +31,7 @@ const userPut = async(req, res) => {
 
     const updatedUser = await User.findByIdAndUpdate(id, rest, {new: true});
 
-    res.json({
+    res.status(200).json({
         updatedUser
     })
 }
@@ -66,7 +66,7 @@ const userPost = async(req, res) => {
         email,
         token
     }
-    res.json({
+    res.status(201).json({
         createdUser
     })
 }
@@ -76,7 +76,7 @@ const userDelete = async(req, res) => {
     
     const deletedUser = await User.findByIdAndUpdate(id, {active: false}, {new: true});
 
-    res.json({
+    res.status(200).json({
         deletedUser
     })
 }
