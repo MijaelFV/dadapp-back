@@ -202,7 +202,7 @@ const itemRemove = async(req, res) => {
         
             case 2: 
                     // Retirar un articulo con la posibilidad de devolverlo
-                    await Item.updateOne(itemId, {takedBy: uid, takedDate: new Date})
+                    await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
                     newInventoryLog = new InventoryLog({column: null, row: null, item: itemDB._id, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'TAKED'})
                     await newInventoryLog.save();
                 
@@ -211,9 +211,10 @@ const itemRemove = async(req, res) => {
 
             case 3:
                     // Consumir una o mas unidades de las disponibles de un articulo 
-                    const quantity = itemDB.quantity - consume
+                    let quantity = itemDB.quantity - consume
+                    quantity < 0 ? quantity = 0 : null
 
-                    await Item.updateOne(itemId, {quantity})
+                    await Item.findByIdAndUpdate(itemId, {quantity})
                     newInventoryLog = new InventoryLog({column: itemDB.column, row: itemDB.row, item: itemDB._id, itemName: itemDB.name, quantity: consume, space: itemDB.space, user: uid, area, type: 'CONSUMED'})
                     await newInventoryLog.save();
                 
