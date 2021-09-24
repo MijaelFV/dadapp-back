@@ -8,8 +8,8 @@ const { validateJWT } = require('../middlewares/validate-jwt');
 const router = Router();
 
 router.post('/login',[
-    check('email', 'El correo es obligatorio').isEmail(),
-    check('password', 'La password es obligatoria').not().isEmpty(),
+    check('email', 'El correo ingresado no tiene un formato valido').isEmail(),
+    check('password', 'La contraseña ingresada no es valida').not().isEmpty(),
     validateFields
 ], login);
 

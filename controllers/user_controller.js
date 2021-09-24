@@ -37,16 +37,17 @@ const userPut = async(req, res) => {
 }
 
 const userPost = async(req, res) => {
-    const {name, email: upperEmail, password} = req.body;
-    const email = upperEmail.toLowerCase();
+    const {name, email: upperEmail, password, password2} = req.body;
 
-    const userDB = await User.findOne({email})
-    if (userDB) {
+    // Verificar que las dos contraseñas sean identicas
+    if (password !== password2) {
         return res.status(400).json({
-            msg: 'Ya existe un usuario con ese correo'
+            param: "password2",
+            msg: 'Las contraseñas deben ser identicas'
         })
     }
 
+    const email = upperEmail.toLowerCase();
     const newUser = new User({name, email, password})
 
     // Encriptar la password

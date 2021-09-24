@@ -9,13 +9,15 @@ const login = async(req, res) => {
         const user = await User.findOne({email});
         if (!user) {
             return res.status(400).json({
-                msg: 'Algunos de los datos no son correctos - email'
+                param: "email",
+                msg: 'El correo que ingresaste no existe.'
             })
         }
 
-        // Si el user esta activo
+        // Verificar que el user este activo
         if (!user.active) {
             return res.status(400).json({
+                param: "user",
                 msg: 'El usuario se encuentra deshabilitado'
             })
         }
@@ -24,7 +26,8 @@ const login = async(req, res) => {
         const validPassword = bcryptjs.compareSync(password, user.password);
         if (!validPassword) {
             return res.status(400).json({
-                msg: 'Algunos de los datos no son correctos - password'
+                param: "password",
+                msg: 'La contraseña que ingresaste es incorrecta'
             })
         }
 

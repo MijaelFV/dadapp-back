@@ -3,7 +3,7 @@ const User = require('../models/user_model');
 const emailExists = async(email = '')=>{
     const emailExists = await User.findOne({email});
     if (emailExists) {
-        throw new Error(`El correo ${email} ya esta registrado en la base de datos`)
+        throw new Error(`El correo ya esta en uso`)
     }
 ;}
 
