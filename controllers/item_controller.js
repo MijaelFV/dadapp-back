@@ -191,25 +191,18 @@ const itemRemove = async(req, res) => {
             })
         }
 
-        let model;
         let newInventoryLog
-    
         switch (type) {
-            case 1:
-                    // Eliminar permanentemente un articulo
-                    model = await Item.findByIdAndDelete(itemId)
-                break;
-        
-            case 2: 
+            case 1: 
                     // Retirar un articulo con la posibilidad de devolverlo
                     await Item.findByIdAndUpdate(itemId, {takedBy: uid, takedDate: new Date})
                     newInventoryLog = new InventoryLog({column: null, row: null, item: itemDB._id, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'TAKED'})
                     await newInventoryLog.save();
                 
-                    return res.status(200).json(newInventoryLog)
+                    return res.status(200).json("Se retiro el articulo")
                 break;
 
-            case 3:
+            case 2:
                     // Consumir una o mas unidades de las disponibles de un articulo 
                     let quantity = itemDB.quantity - consume
                     quantity < 0 ? quantity = 0 : null
@@ -218,9 +211,32 @@ const itemRemove = async(req, res) => {
                     newInventoryLog = new InventoryLog({column: itemDB.column, row: itemDB.row, item: itemDB._id, itemName: itemDB.name, quantity: consume, space: itemDB.space, user: uid, area, type: 'CONSUMED'})
                     await newInventoryLog.save();
                 
-                    return res.status(200).json(newInventoryLog)
+                    return res.status(200).json("Se consumio el articulo")
                 break;
         }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const itemDelete = async(req, res) => {
+    try {
+        const itemId = req.params.id;
+        const uid = req.user._id;
+        const { area } = req.body;
+    
+        const itemDB = await Item.findById(itemId)
+        if (!itemDB) {
+            return res.status(400).json({
+                msg: `No existe un item con el id ${itemId}`
+            })
+        }
+
+        let model;
+        let newInventoryLog
+    
+        // Eliminar permanentemente un articulo
+        model = await Item.findByIdAndDelete(itemId);
 
         // Eliminar imagen del item
         deleteImage(model, "items")
@@ -242,5 +258,6 @@ module.exports = {
     itemPut,
     itemPost,
     itemReturn,
-    itemRemove
+    itemRemove,
+    itemDelete
 }

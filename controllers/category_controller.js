@@ -54,7 +54,7 @@ const categoryDelete = async(req, res) => {
         const matchedItems = await Item.findOne({category: id})
         if (matchedItems?.length !== 0 && matchedItems) {
             return res.status(400).json({
-                msg: `Existen articulos asignados a esta categoria`
+                msg: `La categoria esta siendo utilizada por uno o más articulos`
             });
         } else {
             const deletedCategory = await Category.findByIdAndDelete(id)

@@ -25,6 +25,36 @@ const areaGetByID = async(req, res) => {
     res.status(200).json(resp)
 }
 
+const areaDeleteUser = async(req, res) => {
+    const {userid, areaid} = req.body
+
+    const matchedArea = await Area.findById(areaid)
+
+    if (matchedArea.admins.includes(userid)) {
+        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {admins: userid}})
+    } else {
+        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {users: userid}})
+    }
+
+    res.status(200).json({msg: 'Succefully deleted user'})
+}
+
+const areaChangeUserRole = async(req, res) => {
+    const {userid, areaid} = req.body
+
+    const matchedArea = await Area.findById(areaid)
+
+    if (matchedArea.admins.includes(userid)) {
+        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {admins: userid}})
+        await Area.findByIdAndUpdate(matchedArea._id, {$push: {users: userid}})
+    } else {
+        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {users: userid}})
+        await Area.findByIdAndUpdate(matchedArea._id, {$push: {admins: userid}})
+    }
+
+    res.status(200).json({msg: 'Succefully changed role'})
+}
+
 const areaJoin = async(req, res) => {
     const id = req.user._id
     const { code } = req.body;
@@ -112,6 +142,8 @@ module.exports = {
     areaGetByUserID,
     areaGetByID,
     areaGet,
+    areaDeleteUser,
+    areaChangeUserRole,
     areaJoin,
     areaRenewInviteCode,
     areaPut,

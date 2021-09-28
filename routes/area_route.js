@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { areaPut, areaPost, areaDelete, areaGet, areaGetByUserID, areaJoin, areaRenewInviteCode, areaGetByID } = require('../controllers/area_controller');
+const { areaPut, areaPost, areaDelete, areaGet, areaGetByUserID, areaJoin, areaRenewInviteCode, areaGetByID, areaChangeUserRole, areaDeleteUser } = require('../controllers/area_controller');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
@@ -20,6 +20,13 @@ router.get('/:id',[
     validateJWT,
     validateFields
 ], areaGetByID);
+
+router.put('/changerole',[
+    validateJWT,
+    check('areaid', 'No es un ID de area valido').isMongoId(),
+    check('userid', 'No es un ID de usuario valido').isMongoId(),
+    validateFields
+], areaChangeUserRole);
 
 router.put('/code/join',[
     validateJWT,
@@ -44,6 +51,13 @@ router.post('/',[
     check('name', 'El nombre es obligatorio').not().isEmpty(),
     validateFields
 ], areaPost);
+
+router.put('/user/kick',[
+    validateJWT,
+    check('areaid', 'No es un ID de area valido').isMongoId(),
+    check('userid', 'No es un ID de usuario valido').isMongoId(),
+    validateFields
+], areaDeleteUser);
 
 router.delete('/:id',[
     validateJWT,
