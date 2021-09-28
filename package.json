@@ -18,7 +18,7 @@
     "express-validator": "^6.12.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.2",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.13",
     "shortid": "^2.2.16",
     "uuid": "^8.3.2"
   }
