@@ -77,7 +77,7 @@ const spaceDelete = async(req, res) => {
             deleteImage(item, "items")
         })
     })
-    await Item.deleteMany({space: id}).then()
+    await Item.deleteMany({space: id})
     await Category.deleteMany({space: id});
     const deletedSpace = await Space.findByIdAndDelete(id)
 

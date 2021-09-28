@@ -1,5 +1,10 @@
 const shortid = require('shortid');
+const { deleteImage } = require('../helpers/delete-image');
 const Area = require('../models/area_model');
+const Category = require('../models/category_model');
+const InventoryLog = require('../models/inventoryLog_model');
+const Item = require('../models/item_model');
+const Space = require('../models/space_model');
 
 const areaGet = async(req, res) => {
     const resp = await Area.find();
@@ -72,7 +77,7 @@ const areaJoin = async(req, res) => {
 
     await Area.findByIdAndUpdate(matchedArea._id, {$push: {users: id}})
 
-    res.status(200).json({msg: 'Succefully modified area'})
+    res.status(200).json({msg: 'Successfully modified area'})
 }
 
 const areaRenewInviteCode = async(req, res) => {
@@ -133,9 +138,22 @@ const areaDelete = async(req, res) => {
         })
     }
 
-    const deletedArea = await Area.findByIdAndDelete(id)
+    await Space.find({area: id}).then(async(spaces) => {
+        spaces.forEach(async(space) => {
+            await InventoryLog.deleteMany({space: space._id});
+            await Item.find({space: space._id}).then((items) => {
+                items.forEach(item => {
+                    deleteImage(item, "items")
+                })
+            })
+            await Item.deleteMany({space: space._id})
+            await Category.deleteMany({space: space._id});
+        })
+    })
+    await Space.deleteMany({area: id})
+    await Area.findByIdAndDelete(id)
 
-    res.status(200).json(deletedArea)
+    res.status(200).json({msg: 'The area and its content were successfully deleted'})
 }
 
 module.exports = {
