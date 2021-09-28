@@ -2,6 +2,25 @@ const bcryptjs = require('bcryptjs');
 const User = require('../models/user_model');
 const { generateJWT } = require("../helpers/generate-jwt");
 
+const loginRevalidate = async(req, res) => {
+    try {
+        const {_id: uid, name} = req.user;
+
+        const token = await generateJWT(uid, name);
+
+        const checkedUser = {
+            token,
+            uid,
+            name
+        }
+        res.status(200).json({
+            checkedUser
+        });
+    } catch (error) {
+        console.log(error);
+    }
+} 
+
 const login = async(req, res) => {
     const {email, password}  = req.body;
     try {
@@ -55,5 +74,6 @@ const login = async(req, res) => {
 }
 
 module.exports = {
+    loginRevalidate,
     login
 }

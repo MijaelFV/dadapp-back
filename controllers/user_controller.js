@@ -37,38 +37,40 @@ const userPut = async(req, res) => {
 }
 
 const userPost = async(req, res) => {
-    const {name, email: upperEmail, password, password2} = req.body;
+    try {
+        const {name, email: upperEmail, password, password2} = req.body;
 
-    // Verificar que las dos contraseñas sean identicas
-    if (password !== password2) {
-        return res.status(400).json({
-            param: "password2",
-            msg: 'Las contraseñas deben ser identicas'
-        })
+        // Verificar que las dos contraseñas sean identicas
+        if (password !== password2) {
+            return res.status(400).json({
+                param: "password2",
+                msg: 'Las contraseñas deben ser identicas'
+            })
+        }
+
+        const email = upperEmail.toLowerCase();
+        const newUser = new User({name, email, password})
+
+        // Encriptar la password
+        const salt = bcryptjs.genSaltSync();
+        newUser.password = bcryptjs.hashSync(password, salt);
+
+        // Guardar en DB
+        await newUser.save();
+
+        // Generar nuestro JWT 
+        const token = await generateJWT(newUser.uid, newUser.name);
+
+        const createdUser = {
+            uid: newUser._id,
+            name,
+            email,
+            token
+        }
+        res.status(201).json({msg: "El usuario ha sido creado con exito"})
+    } catch (error) {
+        console.log(error);
     }
-
-    const email = upperEmail.toLowerCase();
-    const newUser = new User({name, email, password})
-
-    // Encriptar la password
-    const salt = bcryptjs.genSaltSync();
-    newUser.password = bcryptjs.hashSync(password, salt);
-
-    // Guardar en DB
-    await newUser.save();
-
-    // Generar nuestro JWT 
-    const token = await generateJWT(newUser.uid, newUser.name);
-
-    const createdUser = {
-        uid: newUser._id,
-        name,
-        email,
-        token
-    }
-    res.status(201).json({
-        createdUser
-    })
 }
 
 const userDelete = async(req, res) => {
@@ -81,26 +83,10 @@ const userDelete = async(req, res) => {
     })
 }
 
-const userRevalidate = async(req, res) => {
-    const {_id: uid, name} = req.user;
-
-    const token = await generateJWT(uid, name);
-
-    const checkedUser = {
-        token,
-        uid,
-        name
-    }
-    res.status(200).json({
-        checkedUser
-    });
-} 
-
 module.exports = {
     userGetById,
     userGet,
     userPut,
     userPost,
-    userDelete,
-    userRevalidate
+    userDelete
 }
