@@ -34,6 +34,13 @@ const categoryPost = async(req, res) => {
     const spaceId = req.params.id;
     const { name } = req.body;
 
+    const categoryDB = await Category.findOne({name: name, space: spaceId})
+    if (categoryDB) {
+        return res.status(400).json({
+            msg: `Ya existe una categoria con ese nombre`
+        })
+    }
+
     const newCategory = new Category({name, space: spaceId});
     await newCategory.save();
 
