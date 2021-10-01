@@ -6,7 +6,7 @@ const userGetById = async(req, res) => {
     const id = req.params.id;
 
     const user = await User.findOne({_id: id, active: true})
-        .select('-image -active')
+        .select('-active')
 
     res.status(200).json(user)
 }

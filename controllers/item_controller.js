@@ -30,7 +30,7 @@ const inventoryLogsGet = async(req, res) => {
         })
         .populate({
             path: 'user',
-            select: 'name',
+            select: 'name image',
         })
 
     res.status(200).json(resp)

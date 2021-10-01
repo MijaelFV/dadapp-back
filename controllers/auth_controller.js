@@ -7,10 +7,12 @@ const loginRevalidate = async(req, res) => {
         const {_id: uid, name} = req.user;
 
         const token = await generateJWT(uid, name);
+        const user = await User.findById(uid).select('image');
 
         const checkedUser = {
             token,
             uid,
+            image: user?.image,
             name
         }
         res.status(200).json({
@@ -56,6 +58,7 @@ const login = async(req, res) => {
         const loggedUser = {
             uid: user.id,
             name: user.name,
+            image: user?.image,
             email,
             token
         }

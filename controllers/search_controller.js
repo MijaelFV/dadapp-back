@@ -27,9 +27,8 @@ const searchGetByQuery = async(req, res) => {
         const resp = await Item.find().or([{category: matchedCategories}, {name: {$regex: regex}}])
             .where('space')
             .in(uidList)
-            .select('-takedBy -takedDate')
-            .populate('category', '_id name')
-            .populate('space', '_id name') 
+            .populate('category', 'name')
+            .populate('space', 'name') 
             
         return resp
     }
