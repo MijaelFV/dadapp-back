@@ -67,7 +67,7 @@ const areaJoin = async(req, res) => {
     const matchedArea = await Area.findOne({inviteCode: code})
     if (!matchedArea) {
         return res.status(404).json({
-            msg: `No existe el codigo de invitacion ${code}`
+            msg: `El codigo de invitación ingresado es invalido`
         })
     } else if (matchedArea.users.includes(id) || matchedArea.admins.includes(id)) {
         return res.status(409).json({
