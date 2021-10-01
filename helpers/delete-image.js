@@ -1,5 +1,7 @@
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+cloudinary.config(process.env.CLOUDINARY_URL);
 
 const deleteImage = (model, collection) => {
     if (model.image) {
@@ -10,6 +12,16 @@ const deleteImage = (model, collection) => {
     }
 }
 
+const deleteImageCloudinary = (model) => {
+    if (model.image) {
+        const nameArr = model.image.split('/');
+        const name = nameArr[nameArr.length - 1];
+        const [ public_id ] = name.split('.');
+        cloudinary.uploader.destroy(public_id);
+    }
+}
+
 module.exports = {
-    deleteImage
+    deleteImage,
+    deleteImageCloudinary
 }

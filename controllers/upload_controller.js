@@ -3,7 +3,7 @@ const { response } = require("express");
 const { uploadFile } = require('../helpers/upload-file');
 const User = require('../models/user_model');
 const Item = require('../models/item_model');
-const { deleteImage } = require('../helpers/delete-image');
+const { deleteImageCloudinary } = require('../helpers/delete-image');
 const cloudinary = require('cloudinary').v2;
 cloudinary.config(process.env.CLOUDINARY_URL);
 
@@ -51,12 +51,7 @@ const imagePut = async(req, res = response) => {
         }
 
         // Limpiar imagenes previas
-        if (model.image) {
-            const nameArr = model.image.split('/');
-            const name = nameArr[nameArr.length - 1];
-            const [ public_id ] = name.split('.');
-            cloudinary.uploader.destroy(public_id);
-        }
+        deleteImageCloudinary(model)
 
         const { tempFilePath } = req.files.file
         const { secure_url } = await cloudinary.uploader.upload(tempFilePath);

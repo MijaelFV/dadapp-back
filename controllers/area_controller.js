@@ -1,5 +1,5 @@
 const shortid = require('shortid');
-const { deleteImage } = require('../helpers/delete-image');
+const { deleteImageCloudinary } = require('../helpers/delete-image');
 const Area = require('../models/area_model');
 const Category = require('../models/category_model');
 const InventoryLog = require('../models/inventoryLog_model');
@@ -143,7 +143,7 @@ const areaDelete = async(req, res) => {
             await InventoryLog.deleteMany({space: space._id});
             await Item.find({space: space._id}).then((items) => {
                 items.forEach(item => {
-                    deleteImage(item, "items")
+                    deleteImageCloudinary(item)
                 })
             })
             await Item.deleteMany({space: space._id})
