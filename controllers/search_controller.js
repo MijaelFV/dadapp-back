@@ -6,7 +6,7 @@ const Category = require('../models/category_model');
 
 const searchGetByQuery = async(req, res) => {
     const {id, type} = req.params;
-    const {query, spaceid} = req.query;
+    const {query, spaceid, page, limit, row, column} = req.query;
 
     const regex = new RegExp(query, 'i');
 
@@ -24,21 +24,53 @@ const searchGetByQuery = async(req, res) => {
 
         const matchedCategories = await Category.distinct("_id", {name: {$regex: regex}, space: uidList})
 
-        const resp = await Item.find().or([{category: matchedCategories}, {name: {$regex: regex}}])
-            .where('space')
-            .in(uidList)
-            .populate('category', 'name')
-            .populate('space', 'name') 
+        let baseQuery = {"space": {$in: uidList}, $or:[{category: matchedCategories}, {name: {$regex: regex}}]}
+        let extraQuery;
+        if (row !== '' && column === '') {
+            extraQuery = {row}
+        } else if (column !== '' && row === '') {
+            extraQuery = {column}
+        } else if (row !== '' && column !== '') {
+            extraQuery = {column, row}
+        } else {
+            extraQuery = {}
+        }
+
+        let fullQuery = {...baseQuery, ...extraQuery}
+
+        const options = {
+            page: page,
+            limit: limit,
+            populate: [
+                {path: 'category', select: 'name'},
+                {path: 'space', select: 'name'},
+            ],
+        };
             
-        return resp
+        return Item.paginate(fullQuery, options).then((result) => {
+            const docs = result.docs
+            const totalPages = result.totalPages
+    
+            return {docs, totalPages}
+        });
     }
 
     const usersSearch = async() => {
         const usersFromArea = await Area.find({_id: id}).select("users admins -_id")
         const {admins, users} = usersFromArea[0]
 
-        const resp = await User.find({name: {$regex: regex}, active: true}).or([{_id: admins}, {_id: users}])
-        return resp
+        const options = {
+            page: page,
+            limit: limit,
+            select: '-active'
+        };
+
+        return User.paginate({name: {$regex: regex}, active: true, $or: [{_id: admins}, {_id: users}]}, options).then((result) => {
+            const docs = result.docs
+            const totalPages = result.totalPages
+    
+            return {docs, totalPages}
+        });
     }
 
     let resp
