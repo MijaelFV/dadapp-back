@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const ItemSchema = Schema({
     image: {
@@ -49,6 +50,8 @@ const ItemSchema = Schema({
         default: null
     }
 });
+
+ItemSchema.plugin(mongoosePaginate)
 
 ItemSchema.methods.toJSON = function() {
     const {__v, _id, ...item} = this.toObject();

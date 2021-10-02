@@ -28,7 +28,7 @@ const inventoryLogsGet = async(req, res) => {
     };
 
     
-    InventoryLog.paginate(query, options).then(function (result) {
+    InventoryLog.paginate(query, options).then((result) => {
         const docs = result.docs
         const totalPages = result.totalPages
 
@@ -51,23 +51,33 @@ const inventoryGetByTaked = async(req, res) => {
 }
 
 const inventoryGetBySpace = async(req, res) => {
-    const spaceId = req.params.id;
-    
-    const resp = await Item.find({space: spaceId})
-        .populate({
-            path: 'category',
-            select: 'name'
-        })
-        .populate({
-            path: 'takedBy',
-            select: 'name'
-        })
-        .populate({
-            path: 'space',
-            select: 'name'
-        })
+    const space = req.params.id;
+    const {page, limit, row, column} = req.query;
+ 
+    const options = {
+        page: page,
+        limit: limit,
+        populate: [
+            {path: 'category', select: 'name'},
+            {path: 'takedBy', select: 'name'},
+            {path: 'space', select: 'name'}
+        ],
+    };
 
-    res.status(200).json(resp)
+    let query;
+    if (row !== '0' && column !== '0') {
+        query = {space, row, column}
+    } else {
+        query = {space}
+    }
+
+    Item.paginate(query, options)
+        .then((result) => {
+            const docs = result.docs
+            const totalPages = result.totalPages
+
+            res.status(200).json({docs, totalPages})
+        });
 }
 
 const itemGetById = async(req, res) => {
