@@ -24,7 +24,7 @@ const areaGetByID = async(req, res) => {
     const userid = req.user._id
     const areaid = req.params.id
 
-    const select = "_id name email"
+    const select = "_id name email image"
     const resp = await Area.findOne({_id: areaid, admins: userid}).populate({path: "admins", select}).populate({path: "users", select})
 
     res.status(200).json(resp)

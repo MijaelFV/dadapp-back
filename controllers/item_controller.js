@@ -1,7 +1,7 @@
 const Item = require('../models/item_model');
 const InventoryLog = require('../models/inventoryLog_model');
 const Space = require('../models/space_model');
-const { deleteImage } = require('../helpers/delete-image');
+const { deleteImage, deleteImageCloudinary } = require('../helpers/delete-image');
 
 const inventoryLogsGet = async(req, res) => {
     // const skip = req.query.skip ? Number(req.query.skip) : 0
@@ -239,7 +239,7 @@ const itemDelete = async(req, res) => {
         model = await Item.findByIdAndDelete(itemId);
 
         // Eliminar imagen del item
-        deleteImage(model, "items")
+        deleteImageCloudinary(model)
 
         newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'DELETE'})
         await newInventoryLog.save();
