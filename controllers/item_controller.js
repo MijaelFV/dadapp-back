@@ -1,11 +1,11 @@
 const Item = require('../models/item_model');
 const InventoryLog = require('../models/inventoryLog_model');
 const Space = require('../models/space_model');
-const { deleteImage, deleteImageCloudinary } = require('../helpers/delete-image');
+const { deleteImageCloudinary } = require('../helpers/delete-image');
 
 const inventoryLogsGet = async(req, res) => {
-    // const skip = req.query.skip ? Number(req.query.skip) : 0
     const {type, id, areaid} = req.params;
+    const {page, limit} = req.query;
     let query;
 
     if (type === "1") {
@@ -16,24 +16,24 @@ const inventoryLogsGet = async(req, res) => {
         query = {user: id, area: areaid}
     }
 
-    const resp = await InventoryLog.find(query)
-        // .skip(skip)
-        .sort({'time': -1})
-        .limit(10)
-        .populate({
-            path: 'item',
-            select: 'name column row takedBy'
-        })
-        .populate({
-            path: 'space',
-            select: 'name'
-        })
-        .populate({
-            path: 'user',
-            select: 'name image',
-        })
+    const options = {
+        sort: { time: -1 },
+        page: page,
+        limit: limit,
+        populate: [
+            {path: 'item', select: 'name column row takedBy'},
+            {path: 'space', select: 'name'},
+            {path: 'user', select: 'name image'}
+        ],
+    };
 
-    res.status(200).json(resp)
+    
+    InventoryLog.paginate(query, options).then(function (result) {
+        const docs = result.docs
+        const totalPages = result.totalPages
+
+        res.status(200).json({docs, totalPages})
+    });
 }
 
 const inventoryGetByTaked = async(req, res) => {

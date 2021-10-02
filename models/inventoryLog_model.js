@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const InventoryLogSchema = Schema({
     user: {
@@ -42,6 +43,7 @@ const InventoryLogSchema = Schema({
     }
 });
 
+InventoryLogSchema.plugin(mongoosePaginate)
 
 InventoryLogSchema.methods.toJSON = function() {
     const {__v, _id, ...inventoryLog} = this.toObject();
