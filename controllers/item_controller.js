@@ -55,6 +55,7 @@ const inventoryGetBySpace = async(req, res) => {
     const {page, limit, row, column} = req.query;
  
     const options = {
+        sort: { expiryDate: -1 },
         page: page,
         limit: limit,
         populate: [
