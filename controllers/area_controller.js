@@ -1,4 +1,5 @@
 const shortid = require('shortid');
+const { userIsAdmin } = require('../helpers/db-validators');
 const { deleteImageCloudinary } = require('../helpers/delete-image');
 const Area = require('../models/area_model');
 const Category = require('../models/category_model');
@@ -6,160 +7,187 @@ const InventoryLog = require('../models/inventoryLog_model');
 const Item = require('../models/item_model');
 const Space = require('../models/space_model');
 
-const areaGet = async(req, res) => {
-    const resp = await Area.find();
-
-    res.status(200).json(resp)
-}
-
 const areaGetByUserID = async(req, res) => {
-    const id = req.user._id
+    try {
+        const id = req.user._id
 
-    const resp = await Area.find({$or:[{'admins': id}, {'users':id}]}).select('-inviteCode');
+        const resp = await Area.find({$or:[{'admins': id}, {'users':id}]}).select('-inviteCode');
 
-    res.status(200).json(resp)
+        res.status(200).json(resp)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const areaGetByID = async(req, res) => {
-    const userid = req.user._id
-    const areaid = req.params.id
+    try {
+        const userid = req.user._id
+        const areaid = req.params.id
 
-    const select = "_id name email image"
-    const resp = await Area.findOne({_id: areaid, admins: userid}).populate({path: "admins", select}).populate({path: "users", select})
+        const select = "_id name email image"
+        const resp = await Area.findOne({_id: areaid, admins: userid}).populate({path: "admins", select}).populate({path: "users", select})
 
-    res.status(200).json(resp)
+        res.status(200).json(resp)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const areaDeleteUser = async(req, res) => {
-    const {userid, areaid} = req.body
+    try {
+        const {userid, areaid} = req.body
 
-    const matchedArea = await Area.findById(areaid)
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(userid, areaid, res)) return null;
 
-    if (matchedArea.admins.includes(userid)) {
-        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {admins: userid}})
-    } else {
-        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {users: userid}})
+        const matchedArea = await Area.findById(areaid)
+        if (matchedArea.admins.includes(userid)) {
+            await Area.findByIdAndUpdate(matchedArea._id, {$pull: {admins: userid}})
+        } else {
+            await Area.findByIdAndUpdate(matchedArea._id, {$pull: {users: userid}})
+        }
+
+        res.status(200).json({msg: 'Se ha eliminado al usuario exitosamente'})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
-
-    res.status(200).json({msg: 'Succefully deleted user'})
 }
 
 const areaChangeUserRole = async(req, res) => {
-    const {userid, areaid} = req.body
+    try {
+        const {userid, areaid} = req.body
 
-    const matchedArea = await Area.findById(areaid)
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(userid, areaid, res)) return null;
 
-    if (matchedArea.admins.includes(userid)) {
-        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {admins: userid}})
-        await Area.findByIdAndUpdate(matchedArea._id, {$push: {users: userid}})
-    } else {
-        await Area.findByIdAndUpdate(matchedArea._id, {$pull: {users: userid}})
-        await Area.findByIdAndUpdate(matchedArea._id, {$push: {admins: userid}})
+        const matchedArea = await Area.findById(areaid)
+        if (matchedArea.admins.includes(userid)) {
+            await Area.findByIdAndUpdate(matchedArea._id, {$pull: {admins: userid}})
+            await Area.findByIdAndUpdate(matchedArea._id, {$push: {users: userid}})
+        } else {
+            await Area.findByIdAndUpdate(matchedArea._id, {$pull: {users: userid}})
+            await Area.findByIdAndUpdate(matchedArea._id, {$push: {admins: userid}})
+        }
+
+        res.status(200).json({msg: 'El rol del usuario ha sido cambiado exitosamente'})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
-
-    res.status(200).json({msg: 'Succefully changed role'})
 }
 
 const areaJoin = async(req, res) => {
-    const id = req.user._id
-    const { code } = req.body;
+    try {
+        const id = req.user._id
+        const { code } = req.body;
 
-    const matchedArea = await Area.findOne({inviteCode: code})
-    if (!matchedArea) {
-        return res.status(404).json({
-            msg: `El codigo de invitación ingresado es inválido`
-        })
-    } else if (matchedArea.users.includes(id) || matchedArea.admins.includes(id)) {
-        return res.status(409).json({
-            msg: `Ya eres miembro del area`
-        })
+        const matchedArea = await Area.findOne({inviteCode: code})
+        if (!matchedArea) {
+            return res.status(400).json({
+                msg: `El codigo de invitación ingresado es inválido`
+            })
+        } else if (matchedArea.users.includes(id) || matchedArea.admins.includes(id)) {
+            return res.status(409).json({
+                msg: `Ya eres miembro del área`
+            })
+        }
+
+        await Area.findByIdAndUpdate(matchedArea._id, {$push: {users: id}})
+
+        res.status(200).json({msg: 'Se ha unido unido a un área exitosamente'})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
-
-    await Area.findByIdAndUpdate(matchedArea._id, {$push: {users: id}})
-
-    res.status(200).json({msg: 'Successfully modified area'})
 }
 
 const areaRenewInviteCode = async(req, res) => {
-    const userId = req.user._id
-    const areaid = req.body.areaid;
+    try {
+        const userid = req.user._id
+        const areaid = req.body.areaid;
+        
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(userid, areaid, res)) return null;
 
-    const areaDB = await Area.findById(areaid)
-    if (!areaDB) {
-        return res.status(404).json({
-            msg: `No existe un area con el id ${areaid}`
-        })
-    } else if (!areaDB.admins.includes(userId)) {
-        return res.status(401).json({
-            msg: `No eres administrador del area con el id ${areaid}`
-        })
-    }
+        const newCode = shortid.generate();
+        await Area.findByIdAndUpdate(areaid, {inviteCode: newCode})
     
-    const newCode = shortid.generate();
-    await Area.findByIdAndUpdate(areaid, {inviteCode: newCode})
-
-    res.status(200).json(newCode)
+        res.status(200).json(newCode)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const areaPut = async(req, res) => {
-    const id = req.params.id;
-    const { name } = req.body;
+    try {
+        const areaid = req.params.id;
+        const userid = req.user._id
+        const { name } = req.body;
 
-    const areaDB = await Area.findById(id)
-    if (!areaDB) {
-        return res.status(404).json({
-            msg: `No existe un area con el id ${id}`
-        })
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(userid, areaid, res)) return null;
+
+        const updatedArea = await Area.findByIdAndUpdate(areaid, {name}, {new: true}).populate('admins').populate('users')
+
+        res.status(200).json(updatedArea)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
-
-    const updatedArea = await Area.findByIdAndUpdate(id, {name}, {new: true}).populate('admins').populate('users')
-
-    res.status(200).json(updatedArea)
 }
 
 const areaPost = async(req, res) => {
+    try {
+        const userid = req.user._id
+        const { name } = req.body;
 
-    const userId = req.user._id
-    const { name } = req.body;
+        const newArea = new Area({name, admins: [userid]});
+        await newArea.save();
 
-    const newArea = new Area({name, admins: [userId]});
-    await newArea.save();
-
-    res.status(201).json(newArea)
+        res.status(201).json({msg: 'El área se ha creado correctamente'})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const areaDelete = async(req, res) => {
-    const id = req.params.id;
+    try {
+        const areaid = req.params.id;
+        const userid = req.user._id
 
-    const areaDB = await Area.findById(id)
-    if (!areaDB) {
-        return res.status(404).json({
-            msg: `No existe un area con el id ${id}`
-        })
-    }
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(userid, areaid, res)) return null;
 
-    await Space.find({area: id}).then(async(spaces) => {
-        spaces.forEach(async(space) => {
-            await InventoryLog.deleteMany({space: space._id});
-            await Item.find({space: space._id}).then((items) => {
-                items.forEach(item => {
-                    deleteImageCloudinary(item)
+        await Space.find({area: areaid}).then(async(spaces) => {
+            spaces.forEach(async(space) => {
+                await InventoryLog.deleteMany({space: space._id});
+                await Item.find({space: space._id}).then((items) => {
+                    items.forEach(item => {
+                        deleteImageCloudinary(item)
+                    })
                 })
+                await Item.deleteMany({space: space._id})
+                await Category.deleteMany({space: space._id});
             })
-            await Item.deleteMany({space: space._id})
-            await Category.deleteMany({space: space._id});
         })
-    })
-    await Space.deleteMany({area: id})
-    await Area.findByIdAndDelete(id)
+        await Space.deleteMany({area: areaid})
+        await Area.findByIdAndDelete(areaid)
 
-    res.status(200).json({msg: 'The area and its content were successfully deleted'})
+        res.status(200).json({msg: 'El área y su contenido ha sido eliminado correctamente'})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 module.exports = {
     areaGetByUserID,
     areaGetByID,
-    areaGet,
     areaDeleteUser,
     areaChangeUserRole,
     areaJoin,

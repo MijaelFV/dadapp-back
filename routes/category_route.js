@@ -1,38 +1,36 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { categoryPut, categoryPost, categoryDelete, categoryGet, categoryGetBySpace } = require('../controllers/category_controller');
+const { categoryPut, categoryPost, categoryDelete, categoryGetBySpace } = require('../controllers/category_controller');
+const { categoryExists, spaceExists } = require('../helpers/db-validators');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
 const router = Router();
 
-router.get('/',[
-    validateJWT,
-    validateFields
-], categoryGet);
-
 router.get('/:id',[
     validateJWT,
-    check('id', 'No es un ID de espacio valido').isMongoId(),
+    check('id').custom(spaceExists),
     validateFields
 ], categoryGetBySpace);
 
-router.put('/:id',[
+router.put('/:spaceid/:id',[
     validateJWT,
-    check('id', 'No es un ID de categoria valido').isMongoId(),
+    check('spaceid').custom(spaceExists),
+    check('id').custom(categoryExists),
     validateFields
 ], categoryPut);
 
 router.post('/:id',[
     validateJWT,
-    check('id', 'No es un ID de espacio valido').isMongoId(),
+    check('id').custom(spaceExists),
     check('name', 'El nombre es obligatorio').not().isEmpty(),
     validateFields
 ], categoryPost);
 
-router.delete('/:id',[
+router.delete('/:spaceid/:id',[
     validateJWT,
-    check('id', 'No es un ID de categoria valido').isMongoId(),
+    check('spaceid').custom(spaceExists),
+    check('id').custom(categoryExists),
     validateFields
 ], categoryDelete);
 

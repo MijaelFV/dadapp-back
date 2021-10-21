@@ -1,13 +1,16 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 const { itemPut, itemPost, itemRemove, itemGetById, inventoryLogsGet, inventoryGetBySpace, inventoryGetByTaked, itemReturn, itemDelete } = require('../controllers/item_controller');
+const { areaExists, spaceExists } = require('../helpers/db-validators');
 const { validateFields } = require('../middlewares/validate-fields');
+const { validateItem } = require('../middlewares/validate-item');
 const { validateJWT } = require('../middlewares/validate-jwt');
 
 const router = Router();
 
 router.get('/:id',[
     validateJWT,
+    validateItem,
     validateFields
 ], itemGetById);
 
@@ -19,28 +22,28 @@ router.get('/inventory/:id',[
 
 router.get('/taked/:id',[
     validateJWT,
-    check('id', 'No es un ID de area valido').isMongoId(),
+    check('id').custom(areaExists),
     validateFields
 ], inventoryGetByTaked);
 
 router.get('/logs/:type/:id/:areaid?',[
     validateJWT,
     check('id', 'No es un ID de inventario valido').isMongoId(),
-    check('type', 'No es un tipo de request valido').not().isEmpty(),
+    check('type', 'No es un tipo de petición valido').not().isEmpty(),
     validateFields
 ], inventoryLogsGet);
 
 router.put('/:id',[
     validateJWT,
-    check('id', 'No es un ID de objeto valido').isMongoId(),
-    check('area', 'Se necesita el area obligatoriamente').isMongoId(),
+    validateItem,
+    check('area').custom(areaExists),
     validateFields
 ], itemPut);
 
 router.put('/taked/return/:id',[
     validateJWT,
-    check('id', 'No es un ID de objeto valido').isMongoId(),
-    check('space', 'No es un ID de espacio valido').isMongoId(),
+    validateItem,
+    check('space').custom(spaceExists),
     check('column', 'Se necesita la columna obligatoriamente').not().isEmpty(),
     check('row', 'Se necesita la fila obligatoriamente').not().isEmpty(),
     validateFields
@@ -48,27 +51,27 @@ router.put('/taked/return/:id',[
 
 router.put('/remove/:id',[
     validateJWT,
-    check('id', 'No es un ID de objeto valido').isMongoId(),
-    check('area', 'No es un ID de objeto valido').isMongoId(),
-    check('type', 'No es un ID de objeto valido').not().isEmpty(),
+    validateItem,
+    check('area').custom(areaExists),
+    check('type', 'Es necesario especificar el tipo de petición').not().isEmpty(),
     validateFields
 ], itemRemove);
 
 router.post('/',[
     validateJWT,
     check('name', 'El nombre es obligatorio').not().isEmpty(),
-    check('category', 'Se necesita el numero de filas obligatoriamente').not().isEmpty(),
+    check('category', 'La categoria es obligatoria').not().isEmpty(),
     check('column', 'Se necesita la columna obligatoriamente').not().isEmpty(),
     check('row', 'Se necesita la fila obligatoriamente').not().isEmpty(),
-    check('space', 'El espacio es obligatorio').isMongoId(),
-    check('area', 'Se necesita el area obligatoriamente').isMongoId(),
+    check('space').custom(spaceExists),
+    check('area').custom(areaExists),
     validateFields
 ], itemPost);
 
 router.delete('/:id',[
     validateJWT,
-    check('id', 'No es un ID de objeto valido').isMongoId(),
-    check('area', 'Se necesita el area obligatoriamente').isMongoId(),
+    validateItem,
+    check('area').custom(areaExists),
     validateFields
 ], itemDelete);
 

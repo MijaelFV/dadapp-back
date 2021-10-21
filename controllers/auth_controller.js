@@ -20,12 +20,13 @@ const loginRevalidate = async(req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
 } 
 
 const login = async(req, res) => {
-    const {email, password}  = req.body;
     try {
+        const {email, password}  = req.body;
         // Verificar si el email existe
         const user = await User.findOne({email});
         if (!user) {
@@ -48,7 +49,7 @@ const login = async(req, res) => {
         if (!validPassword) {
             return res.status(400).json({
                 param: "password",
-                msg: 'La contraseña que ingresaste es incorrecta'
+                msg: 'La contraseña ingresada es incorrecta'
             })
         }
 
@@ -68,12 +69,8 @@ const login = async(req, res) => {
         
     } catch (error) {
         console.log(error)
-        return res.status(500).json({
-            msg: "Hable con el administrador"
-        })
+        return res.status(500).json({ msg: "Error en el servidor"})
     }
-
-
 }
 
 module.exports = {

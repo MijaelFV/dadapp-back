@@ -2,117 +2,135 @@ const Item = require('../models/item_model');
 const InventoryLog = require('../models/inventoryLog_model');
 const Space = require('../models/space_model');
 const { deleteImageCloudinary } = require('../helpers/delete-image');
+const { userIsAdmin } = require('../helpers/db-validators');
 
 const inventoryLogsGet = async(req, res) => {
-    const {type, id, areaid} = req.params;
-    const {page, limit} = req.query;
-    let query;
-
-    if (type === "1") {
-        query = {area: id}
-    } else if (type === "2") {
-        query = {item: id}
-    } else if (type === "3") {
-        query = {user: id, area: areaid}
-    }
-
-    const options = {
-        sort: { time: -1 },
-        page: page,
-        limit: limit,
-        populate: [
-            {path: 'item', select: 'name column row takedBy'},
-            {path: 'space', select: 'name'},
-            {path: 'user', select: 'name image'}
-        ],
-    };
-
+    try {
+        const {type, id, areaid} = req.params;
+        const {page, limit} = req.query;
+        let query;
     
-    InventoryLog.paginate(query, options).then((result) => {
-        const docs = result.docs
-        const totalPages = result.totalPages
-
-        res.status(200).json({docs, totalPages})
-    });
+        if (type === "1") {
+            query = {area: id}
+        } else if (type === "2") {
+            query = {item: id}
+        } else if (type === "3") {
+            query = {user: id, area: areaid}
+        }
+    
+        const options = {
+            sort: { time: -1 },
+            page: page,
+            limit: limit,
+            populate: [
+                {path: 'item', select: 'name column row takedBy'},
+                {path: 'space', select: 'name'},
+                {path: 'user', select: 'name image'}
+            ],
+        };
+    
+        
+        InventoryLog.paginate(query, options).then((result) => {
+            const docs = result.docs
+            const totalPages = result.totalPages
+    
+            res.status(200).json({docs, totalPages})
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const inventoryGetByTaked = async(req, res) => {
-    const uid = req.user._id;
-    const areaId = req.params.id;
-
-    const spacesFromArea = await Space.find({area: areaId}).select("_id")
-    const uidList = spacesFromArea.map((uid) => (
-        JSON.stringify(uid).replace(/[^a-zA-Z0-9]/g, '').substring(3)
-    ));
-
-    const resp = await Item.find({takedBy: uid}).where('space').in(uidList).select('name image takedDate');
-
-    res.status(200).json(resp)
+    try {
+        const uid = req.user._id;
+        const areaid = req.params.id;
+    
+        const spacesFromArea = await Space.find({area: areaid}).select("_id")
+        const uidList = spacesFromArea.map((uid) => (
+            JSON.stringify(uid).replace(/[^a-zA-Z0-9]/g, '').substring(3)
+        ));
+    
+        const resp = await Item.find({takedBy: uid}).where('space').in(uidList).select('name image takedDate');
+    
+        res.status(200).json(resp)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const inventoryGetBySpace = async(req, res) => {
-    const space = req.params.id;
-    const {page, limit, row, column} = req.query;
- 
-    const options = {
-        sort: { expiryDate: -1 },
-        page: page,
-        limit: limit,
-        populate: [
-            {path: 'category', select: 'name'},
-            {path: 'takedBy', select: 'name'},
-            {path: 'space', select: 'name'}
-        ],
-    };
-
-    let query;
-    if (row !== '0' && column !== '0') {
-        query = {space, row, column}
-    } else {
-        query = {space}
+    try {
+        const space = req.params.id;
+        const {page, limit, row, column} = req.query;
+     
+        const options = {
+            sort: { expiryDate: -1 },
+            page: page,
+            limit: limit,
+            populate: [
+                {path: 'category', select: 'name'},
+                {path: 'takedBy', select: 'name'},
+                {path: 'space', select: 'name'}
+            ],
+        };
+    
+        let query;
+        if (row !== '0' && column !== '0') {
+            query = {space, row, column}
+        } else {
+            query = {space}
+        }
+    
+        Item.paginate(query, options)
+            .then((result) => {
+                const docs = result.docs
+                const totalPages = result.totalPages
+    
+                res.status(200).json({docs, totalPages})
+            });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
-
-    Item.paginate(query, options)
-        .then((result) => {
-            const docs = result.docs
-            const totalPages = result.totalPages
-
-            res.status(200).json({docs, totalPages})
-        });
 }
 
 const itemGetById = async(req, res) => {
-    const id = req.params.id;
+    try {
+        const id = req.params.id;
 
-    const item = await Item.findOne({_id: id})
-        .populate({
-            path: 'category',
-            select: 'name'
-        })
-        .populate({
-            path: 'takedBy',
-            select: 'name'
-        })
-        .populate({
-            path: 'space',
-            select: 'name'
-        })
-
-    res.status(200).json(item)
+        const item = await Item.findOne({_id: id})
+            .populate({
+                path: 'category',
+                select: 'name'
+            })
+            .populate({
+                path: 'takedBy',
+                select: 'name'
+            })
+            .populate({
+                path: 'space',
+                select: 'name'
+            })
+    
+        res.status(200).json(item)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
+    }
 }
 
 const itemPut = async(req, res) => {
     try {
-        const itemId = req.params.id;
+        const itemid = req.params.id;
         const uid = req.user._id;
+        const { itemDB } = req;
         const { name, description, category, column, row, area, expiryDate, quantity} = req.body;
-        
-        const itemDB = await Item.findById(itemId)
-        if (!itemDB) {
-            return res.status(400).json({
-                msg: `No existe un item con el id ${itemId}`
-            })
-        }
+
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(uid, area, res)) return null;
 
         const data = {
             name: name || itemDB.name,
@@ -124,7 +142,7 @@ const itemPut = async(req, res) => {
             quantity: quantity === '' ? null : quantity
         }; 
     
-        const updatedItem = await Item.findByIdAndUpdate(itemId, data, {new: true})
+        const updatedItem = await Item.findByIdAndUpdate(itemid, data, {new: true})
     
         if (itemDB.row !== updatedItem.row || itemDB.column !== updatedItem.column) {
             const newInventoryLog = new InventoryLog({column, row, item: updatedItem._id, itemName: updatedItem.name, space : updatedItem.space, user: uid, area, type: 'MODIFY'})
@@ -134,6 +152,7 @@ const itemPut = async(req, res) => {
         res.status(200).json(updatedItem)
     } catch (error) {
         console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
 }
 
@@ -141,6 +160,10 @@ const itemPost = async(req, res) => {
     try {
         const uid = req.user._id;
         const { name, description, category, column, row, space, area, expiryDate, quantity } = req.body;
+
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(uid, area, res)) return null;
+
         const data = {
             name,
             description,
@@ -162,6 +185,7 @@ const itemPost = async(req, res) => {
         res.status(201).json(newItem);
     } catch (error) {
         console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
 }
 
@@ -170,13 +194,6 @@ const itemReturn = async(req, res) => {
         const itemId = req.params.id;
         const uid = req.user._id;
         const { space, column, row, area } = req.body;
-        
-        const itemDB = await Item.findById(itemId)
-        if (!itemDB) {
-            return res.status(400).json({
-                msg: `No existe un item con el id ${itemId}`
-            })
-        }
     
         const returnedItem = await Item.findByIdAndUpdate(itemId, {space, column, row, takedBy: null, takedDate: null}, {new: true})
     
@@ -186,6 +203,7 @@ const itemReturn = async(req, res) => {
         res.status(200).json(returnedItem)
     } catch (error) {
         console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
 }
 
@@ -194,13 +212,7 @@ const itemRemove = async(req, res) => {
         const itemId = req.params.id;
         const uid = req.user._id;
         const { area, type, consume } = req.body;
-    
-        const itemDB = await Item.findById(itemId)
-        if (!itemDB) {
-            return res.status(400).json({
-                msg: `No existe un item con el id ${itemId}`
-            })
-        }
+        const { itemDB } = req;
 
         let newInventoryLog
         switch (type) {
@@ -227,37 +239,36 @@ const itemRemove = async(req, res) => {
         }
     } catch (error) {
         console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
 }
 
 const itemDelete = async(req, res) => {
     try {
-        const itemId = req.params.id;
-        const uid = req.user._id;
-        const { area } = req.body;
-    
-        const itemDB = await Item.findById(itemId)
-        if (!itemDB) {
-            return res.status(400).json({
-                msg: `No existe un item con el id ${itemId}`
-            })
-        }
+        const itemid = req.params.id;
+        const userid = req.user._id;
+        const areaid = req.body.area;
+        const { itemDB } = req;
+
+        // Verificar que el usuario sea administrador
+        if (!await userIsAdmin(userid, areaid, res)) return null;
 
         let model;
         let newInventoryLog
     
         // Eliminar permanentemente un articulo
-        model = await Item.findByIdAndDelete(itemId);
+        model = await Item.findByIdAndDelete(itemid);
 
         // Eliminar imagen del item
         deleteImageCloudinary(model)
 
-        newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: uid, area, type: 'DELETE'})
+        newInventoryLog = new InventoryLog({column: null, row: null, itemName: itemDB.name, space: itemDB.space, user: userid, area: areaid, type: 'DELETE'})
         await newInventoryLog.save();
     
         res.status(200).json(newInventoryLog)
     } catch (error) {
         console.log(error);
+        return res.status(500).json({msg: "Error en el servidor"})
     }
 }
 

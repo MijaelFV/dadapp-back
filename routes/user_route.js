@@ -1,42 +1,39 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { userGet, userPut, userPost, userDelete, userGetById } = require('../controllers/user_controller');
-const { uidExists, emailExists } = require('../helpers/db-validators');
+const { userPut, userPost, userDelete, userGetById } = require('../controllers/user_controller');
+const { userExists, emailAvailable } = require('../helpers/db-validators');
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
+const { validateOwnUser } = require('../middlewares/validate-ownUser');
+const { validatePasswords } = require('../middlewares/validate-passwords');
 
 const router = Router();
 
 router.get('/:id',[
     validateJWT,
-    check('id', 'No es un ID de usuario valido').isMongoId(),
+    check('id').custom(userExists),
     validateFields
 ], userGetById);
 
-router.get('/',[
-    validateJWT,
-    validateFields
-], userGet);
-
 router.put('/:id',[
     validateJWT,
-    check('id', 'No es un ID de usuario valido').isMongoId(),
-    check('id').custom(uidExists),
+    check('id').custom(userExists),
+    validateOwnUser,
     validateFields
 ], userPut);
 
 router.post('/',[
     check('name', 'El nombre es obligatorio').not().isEmpty(),
-    check('email', 'El correo ingresado no es valido').isEmail(),
-    check('email').custom(emailExists),
-    check('password', 'El contraseña debe tener más de 6 caracteres').isLength({min: 6}),
-    check('password2', 'Debe escribir nuevamente la contraseña').not().isEmpty(),
+    check('email', 'El correo ingresado no tiene un formato valido').isEmail(),
+    check('email').custom(emailAvailable),
+    validatePasswords,
     validateFields
 ], userPost);
 
 router.delete('/:id',[
     validateJWT,
-    check('id', 'No es un ID de usuario valido').isMongoId(),
+    check('id').custom(userExists),
+    validateOwnUser,
     validateFields
 ], userDelete);
 
