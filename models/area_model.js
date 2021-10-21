@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const shortid = require('shortid');
 
 const AreaSchema = Schema({
     name: {
@@ -12,7 +13,11 @@ const AreaSchema = Schema({
     users: [{
         type: Schema.Types.ObjectId,
         ref: 'User',
-    }]
+    }],
+    inviteCode: {
+        type: String,
+        default: shortid.generate
+    }
 });
 
 

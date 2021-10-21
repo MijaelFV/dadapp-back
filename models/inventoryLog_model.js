@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const InventoryLogSchema = Schema({
     user: {
@@ -13,7 +14,12 @@ const InventoryLogSchema = Schema({
     item: {
         type: Schema.Types.ObjectId,
         ref: 'Item',
-        required: [true, 'El item es obligatorio'],
+    },
+    itemName: {
+        type: String,
+    },
+    quantity: {
+        type: Number,
     },
     column: {
         type: Number,
@@ -37,6 +43,7 @@ const InventoryLogSchema = Schema({
     }
 });
 
+InventoryLogSchema.plugin(mongoosePaginate)
 
 InventoryLogSchema.methods.toJSON = function() {
     const {__v, _id, ...inventoryLog} = this.toObject();

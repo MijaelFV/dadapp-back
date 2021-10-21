@@ -1,7 +1,7 @@
 const path = require('path');
 const {v4: uuidv4} = require('uuid');
 
-const uploadFile = (files, validExtensions = ['png', 'jpg', 'jpeg'], folder = '') => {
+const uploadFile = (files, validExtensions = ['png', 'jpg', 'jpeg', 'blob'], folder = '') => {
 
     return new Promise((resolve, reject) => {
         const {file} = files;
